@@ -11,11 +11,15 @@ interface SubTaskContainerProps {
   isExpanded: boolean;
 }
 
-function SubTaskContainer({ parentTask, level, isExpanded }: SubTaskContainerProps) {
+function SubTaskContainer({
+  parentTask,
+  level,
+  isExpanded,
+}: SubTaskContainerProps) {
   const subtasks = useQuery(api.tasks.listTasks, {
     parentId: parentTask._id,
   });
-  const {mode} = useAdminMode();
+  const { mode } = useAdminMode();
 
   if (!isExpanded) {
     return null;
@@ -23,11 +27,12 @@ function SubTaskContainer({ parentTask, level, isExpanded }: SubTaskContainerPro
 
   return (
     <div className="relative w-full">
-      {/* Continuous vertical line for the entire subtask group */}
-      <div
-        className="absolute top-0 bottom-0 w-0.5 bg-slate-700"
-        style={{ left: `${(level + 1)}rem` }}
-      />
+      {level === 0 ? null : (
+        <div
+          className="absolute top-0 bottom-0 w-0.5 bg-slate-700"
+          style={{ left: `${level + 1}rem` }}
+        />
+      )}
 
       <TaskList tasks={subtasks} level={level + 1} />
 

@@ -72,13 +72,13 @@ function NewTaskButton({ parentId }: NewTaskButtonProps) {
           className="w-full justify-center text-orange-400 border-orange-400/30 hover:bg-orange-400/10 bg-transparent gap-2 py-2"
         >
           <Plus className="w-4 h-4" />
-          {parentId ? "Add New Subtask" : "Add New Task"}
+          {parentId ? "Add New Topic" : "Add New Project"}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {parentId ? "Add Subtask" : "Add New Task"}
+            {parentId ? "Add New Topic" : "Add New Project"}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -39,26 +39,27 @@ function SubTask({ task, level }: SubTaskProps) {
         style={{ paddingLeft: `${level * 1}rem` }}
         onClick={canExpand ? handleSubTaskClick : undefined}
       >
-        <div className="py-3 px-4 relative">
-          {/* Task Title */}
-          <div className="flex items-center mb-2 pr-32">
-            <span className="text-sm font-medium text-white">{task.title}</span>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="flex items-center gap-3 w-full pr-32">
-            <Progress
-              value={task.completionPercentage ?? 0}
-              className="h-2 flex-1"
-            />
-            <span className="text-xs text-gray-400 min-w-[3rem] text-right">
-              {(task.completionPercentage ?? 0).toFixed(1)}%
-            </span>
+        <div className="py-3 px-4 relative flex gap-4">
+          <div className="flex-1">
+            {/* Task Title */}
+            <div className="flex items-center mb-2">
+              <span className="text-sm font-medium text-white">{task.title}</span>
+            </div>
+            {/* Progress Bar */}
+            <div className="flex items-center gap-3 w-full">
+              <Progress
+                value={task.completionPercentage ?? 0}
+                className="h-2 flex-1"
+              />
+              <span className="text-xs text-gray-400 text-right">
+                {(task.completionPercentage ?? 0).toFixed(1)}%
+              </span>
+            </div>
           </div>
 
           {/* Fixed position action buttons */}
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-            <TaskActions task={task} />
+          <div className="flex items-end gap-2">
+            <TaskActions task={task} showDelete={true} />
             <TaskCompleteButton task={task} level={level} />
             <PlayButton task={task} />
           </div>

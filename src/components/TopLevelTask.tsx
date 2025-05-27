@@ -45,7 +45,7 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
             </div>
           </div>
           <div className="absolute right-4 flex items-center gap-2">
-            <TaskActions task={task} />
+            <TaskActions task={task} showDelete={false} />
             <PlayButton task={task} />
           </div>
         </div>

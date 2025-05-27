@@ -1,103 +1,6 @@
 import { v } from "convex/values";
-import { query, mutation, action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-
-export const createTask = mutation({
-  args: {
-    title: v.string(),
-    description: v.optional(v.string()),
-    parentId: v.optional(v.id("tasks")),
-  },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
-
-    // Find the maximum order for the given parentId (or null for top-level)
-    const existingTasks = await ctx.db
-      .query("tasks")
-      .withIndex("by_parent", (q) => q.eq("parentId", args.parentId))
-      .filter((q) => q.eq(q.field("userId"), userId))
-      .order("desc")
-      .take(1);
-
-    const newOrder = existingTasks.length > 0 ? existingTasks[0].order + 1 : 0;
-
-    await ctx.db.insert("tasks", {
-      userId: userId,
-      title: args.title,
-      description: args.description,
-      parentId: args.parentId,
-      order: newOrder,
-      status: "not_started",
-      timeSpent: 0,
-      completionPercentage: 0,
-    });
-  },
-});
-
-export const updateTask = mutation({
-  args: {
-    taskId: v.id("tasks"),
-    updates: v.object({
-      status: v.optional(
-        v.union(
-          v.literal("not_started"),
-          v.literal("in_progress"),
-          v.literal("completed"),
-        ),
-      ),
-      title: v.optional(v.string()),
-      description: v.optional(v.optional(v.string())), // Needs double optional because schema is optional string
-      timeSpent: v.optional(v.optional(v.number())),   // Needs double optional
-      completionPercentage: v.optional(v.optional(v.number())), // Needs double optional
-    }),
-  },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
-
-    const task = await ctx.db.get(args.taskId);
-    if (!task || task.userId !== userId) {
-      throw new Error("Task not found or does not belong to user");
-    }
-
-    await ctx.db.patch(args.taskId, args.updates);
-  },
-});
-
-export const deleteTask = mutation({
-  args: {
-    taskId: v.id("tasks"),
-  },
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
-
-    const task = await ctx.db.get(args.taskId);
-    if (!task || task.userId !== userId) {
-      throw new Error("Task not found or does not belong to user");
-    }
-
-    // Recursively delete subtasks
-    const subtasks = await ctx.db
-      .query("tasks")
-      .withIndex("by_parent", (q) => q.eq("parentId", args.taskId))
-      .collect();
-    for (const subtask of subtasks) {
- await ctx.db.delete(subtask._id);
-    }
-
-    // Delete the task itself
-    await ctx.db.delete(args.taskId);
-  },
-});
 
 export const getTask = query({
   args: {
@@ -158,8 +61,8 @@ export const isLeafTask = query({
 async function getNextOrderValue(ctx: any, parentId: string | undefined, userId: string) {
   const siblings = await ctx.db
     .query("tasks")
-    .withIndex("by_parent", (q: { eq: (arg0: string, arg1: string | undefined) => any; }) => q.eq("parentId", parentId))
-    .filter((q: { eq: (arg0: any, arg1: string) => any; field: (arg0: string) => any; }) => q.eq(q.field("userId"), userId))
+    .withIndex("by_parent", (q: any) => q.eq("parentId", parentId))
+    .filter((q: any) => q.eq(q.field("userId"), userId))
     .collect();
 
   if (siblings.length === 0) return 1;
@@ -173,8 +76,8 @@ async function deleteTaskAndSubtasks(ctx: any, taskId: string, userId: string) {
   // Get all direct children
   const children = await ctx.db
     .query("tasks")
-    .withIndex("by_parent", (q: { eq: (arg0: string, arg1: string) => any; }) => q.eq("parentId", taskId))
-    .filter((q: { eq: (arg0: any, arg1: string) => any; field: (arg0: string) => any; }) => q.eq(q.field("userId"), userId))
+    .withIndex("by_parent", (q: any) => q.eq("parentId", taskId))
+    .filter((q: any) => q.eq(q.field("userId"), userId))
     .collect();
 
   // Recursively delete all children
@@ -184,6 +87,49 @@ async function deleteTaskAndSubtasks(ctx: any, taskId: string, userId: string) {
 
   // Delete the task itself
   await ctx.db.delete(taskId);
+}
+
+// Helper function to check if a task has any children
+async function hasChildren(ctx: any, taskId: string, userId: string): Promise<boolean> {
+  const children = await ctx.db
+    .query("tasks")
+    .withIndex("by_parent", (q: any) => q.eq("parentId", taskId))
+    .filter((q: any) => q.eq(q.field("userId"), userId))
+    .first();
+
+  return children !== null;
+}
+
+// Helper function to calculate parent progress based on children
+async function updateParentProgress(ctx: any, parentId: string, userId: string) {
+  // Get all children of the parent
+  const children = await ctx.db
+    .query("tasks")
+    .withIndex("by_parent", (q: any) => q.eq("parentId", parentId))
+    .filter((q: any) => q.eq(q.field("userId"), userId))
+    .collect();
+
+  if (children.length === 0) return;
+
+  // Calculate average completion percentage
+  const totalCompletion = children.reduce((sum: number, child: any) => {
+    return sum + (child.completionPercentage || 0);
+  }, 0);
+
+  const averageCompletion = totalCompletion / children.length;
+
+  // Update parent task
+  await ctx.db.patch(parentId, {
+    completionPercentage: Math.round(averageCompletion * 100) / 100, // Round to 2 decimal places
+    status: averageCompletion === 0 ? "not_started" :
+            averageCompletion === 100 ? "completed" : "in_progress"
+  });
+
+  // Get the parent task to check if it has a parent (for recursive updates)
+  const parentTask = await ctx.db.get(parentId);
+  if (parentTask && parentTask.parentId) {
+    await updateParentProgress(ctx, parentTask.parentId, userId);
+  }
 }
 
 export const createTask = mutation({
@@ -360,49 +306,6 @@ export const addTimeToTask = mutation({
     return args.taskId;
   },
 });
-
-// Helper function to check if a task has any children
-async function hasChildren(ctx: any, taskId: string, userId: string): Promise<boolean> {
-  const children = await ctx.db
-    .query("tasks")
-    .withIndex("by_parent", (q: { eq: (arg0: string, arg1: string) => any; }) => q.eq("parentId", taskId))
-    .filter((q: { eq: (arg0: any, arg1: string) => any; field: (arg0: string) => any; }) => q.eq(q.field("userId"), userId))
-    .first();
-
-  return children !== null;
-}
-
-// Helper function to calculate parent progress based on children
-async function updateParentProgress(ctx: any, parentId: string, userId: string) {
-  // Get all children of the parent
-  const children = await ctx.db
-    .query("tasks")
-    .withIndex("by_parent", (q: { eq: (arg0: string, arg1: string) => any; }) => q.eq("parentId", parentId))
-    .filter((q: { eq: (arg0: any, arg1: string) => any; field: (arg0: string) => any; }) => q.eq(q.field("userId"), userId))
-    .collect();
-
-  if (children.length === 0) return;
-
-  // Calculate average completion percentage
-  const totalCompletion = children.reduce((sum: number, child: any) => {
-    return sum + (child.completionPercentage || 0);
-  }, 0);
-
-  const averageCompletion = totalCompletion / children.length;
-
-  // Update parent task
-  await ctx.db.patch(parentId, {
-    completionPercentage: Math.round(averageCompletion * 100) / 100, // Round to 2 decimal places
-    status: averageCompletion === 0 ? "not_started" :
-            averageCompletion === 100 ? "completed" : "in_progress"
-  });
-
-  // Get the parent task to check if it has a parent (for recursive updates)
-  const parentTask = await ctx.db.get(parentId);
-  if (parentTask && parentTask.parentId) {
-    await updateParentProgress(ctx, parentTask.parentId, userId);
-  }
-}
 
 export const completeTask = mutation({
   args: {
