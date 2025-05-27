@@ -14,7 +14,7 @@ export default function App() {
   tasks?.sort((a, b) => a.order - b.order);
   return (
     <>
-      <header className="sticky top-0 z-10 bg-light dark:bg-dark p-4 border-b-2 border-slate-200 dark:border-slate-800 justify-between flex">
+      <header className="sticky top-0 z-10 bg-slate-900 p-4 border-b-2 border-slate-200 dark:border-slate-800 justify-between flex">
         <h1 className="text-2xl text-center">TrackIt</h1>
         <AdminModeToggle />
         <div className="flex gap-2">
@@ -24,12 +24,14 @@ export default function App() {
       </header>
       <main className="p-8 flex flex-col gap-16">
         <Authenticated>
-          <div>
-            <section className="grid place-content-center">
-              <h2 className="text-2xl font-bold">Tasks</h2>
-              <TaskList tasks={tasks} level={0} />
-              <div className="mt-4">
-                <NewTaskButton />
+          <div className="w-full max-w-4xl mx-auto">
+            <section>
+              <h2 className="text-2xl font-bold text-center mb-6">Tasks</h2>
+              <div className="w-full space-y-1">
+                <TaskList tasks={tasks} level={0} />
+                <div className="mt-4 px-4">
+                  <NewTaskButton />
+                </div>
               </div>
             </section>
           </div>

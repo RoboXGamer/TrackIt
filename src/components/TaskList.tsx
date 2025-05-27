@@ -1,12 +1,16 @@
 import TaskItem from "./TaskItem";
+import { Task } from "./types/Task";
 
-function TaskList({ tasks, level }: { tasks: any; level: number }) {
+interface TaskListProps {
+  tasks: Task[] | undefined;
+  level: number;
+}
+
+function TaskList({ tasks, level }: TaskListProps) {
   return (
-    <>
-      <ul>
-        {tasks?.map((task: any) => <TaskItem key={task._id} task={task} level={level} />)}
-      </ul>
-    </>
+    <div className="w-full space-y-1">
+      {tasks?.map((task) => <TaskItem key={task._id} task={task} level={level} />)}
+    </div>
   );
 }
 
