@@ -39,7 +39,7 @@ function SubTaskContainer({
       {/* Only show NewTaskButton if we're not at the maximum nesting level (5) */}
       {level < 4 && mode === "ON" && (
         <div
-          style={{ marginLeft: `${(level + 1) * 2}rem` }}
+          style={{ marginLeft: `${(level + 1) * 1}rem` }}
           className="py-2 px-4 relative"
         >
           <NewTaskButton parentId={parentTask._id} />
