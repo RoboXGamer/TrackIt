@@ -7,6 +7,11 @@ import {
   TaskPlayButton,
 } from "@/components/tasks";
 import { Progress } from "@/components/ui/progress";
+import {
+  calculateTaskPadding,
+  isInteractiveElement,
+  canTaskExpand,
+} from "@/components/tasks";
 
 interface SubTaskProps {
   task: Task;
@@ -17,22 +22,19 @@ function SubTask({ task, level }: SubTaskProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSubTaskClick = (e: React.MouseEvent) => {
-    // Don't allow expansion at level 5 (maximum nesting)
-    if (level >= 5) return;
+    // Don't allow expansion at maximum nesting level
+    if (!canTaskExpand(level)) return;
 
     // Prevent expansion when clicking on interactive elements
     const target = e.target as HTMLElement;
-    const isInteractiveElement = target.closest(
-      'button, [role="button"], input, select, textarea, a',
-    );
-
-    if (!isInteractiveElement) {
+    if (!isInteractiveElement(target)) {
       setIsExpanded(!isExpanded);
     }
   };
 
   // Determine if this subtask can be expanded (not at max level)
-  const canExpand = level < 5;
+  const canExpand = canTaskExpand(level);
+  const paddingLeft = calculateTaskPadding(level);
 
   return (
     <>
@@ -40,7 +42,7 @@ function SubTask({ task, level }: SubTaskProps) {
         className={`relative w-full ${
           canExpand ? "cursor-pointer hover:bg-gray-800/30" : ""
         } transition-all duration-200`}
-        style={{ paddingLeft: `${level * 1}rem` }}
+        style={{ paddingLeft: `${paddingLeft}rem` }}
         onClick={canExpand ? handleSubTaskClick : undefined}
       >
         <div className="py-3 px-4 relative flex gap-4">
@@ -72,8 +74,8 @@ function SubTask({ task, level }: SubTaskProps) {
         </div>
       </div>
 
-      {/* Expanded Content - Nested Subtasks (only if under level 5) */}
-      {level < 5 && (
+      {/* Expanded Content - Nested Subtasks (only if can expand) */}
+      {canExpand && (
         <SubTaskContainer
           parentTask={task}
           level={level}

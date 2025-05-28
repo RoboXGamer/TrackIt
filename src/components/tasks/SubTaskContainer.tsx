@@ -2,6 +2,11 @@ import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Task } from "../types/Task";
 import { TaskList, CreateTaskButton, useAdminMode } from "@/components";
+import {
+  calculateTaskPadding,
+  canTaskExpand,
+  TASK_HIERARCHY,
+} from "@/components/tasks";
 
 interface SubTaskContainerProps {
   parentTask: Task;
@@ -19,25 +24,30 @@ function SubTaskContainer({
   });
   const { mode } = useAdminMode();
 
+  const nextLevel = level + 1;
+  const canShowCreateButton = canTaskExpand(level);
+  const hierarchyLinePosition = calculateTaskPadding(nextLevel);
+  const createButtonMargin = calculateTaskPadding(nextLevel);
+
   if (!isExpanded) {
     return null;
   }
 
   return (
     <div className="relative w-full">
-      {level === 0 ? null : (
+      {level !== TASK_HIERARCHY.TOP_LEVEL && (
         <div
-          className="absolute top-0 bottom-0 w-0.5 bg-slate-700"
-          style={{ left: `${level + 1}rem` }}
+          className="absolute top-0 bottom-0 w-0.5 bg-border"
+          style={{ left: `${hierarchyLinePosition}rem` }}
         />
       )}
 
-      <TaskList tasks={subtasks} level={level + 1} />
+      <TaskList tasks={subtasks} level={nextLevel} />
 
-      {/* Only show NewTaskButton if we're not at the maximum nesting level (5) */}
-      {level < 4 && mode === "ON" && (
+      {/* Only show CreateTaskButton if we're not at the maximum nesting level */}
+      {canShowCreateButton && mode === "ON" && (
         <div
-          style={{ marginLeft: `${(level + 1) * 1}rem` }}
+          style={{ marginLeft: `${createButtonMargin}rem` }}
           className="py-2 px-4 relative"
         >
           <CreateTaskButton parentId={parentTask._id} />

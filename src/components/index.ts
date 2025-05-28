@@ -14,6 +14,9 @@ export { default as TaskTimeDisplay } from "./tasks/TaskTimeDisplay";
 export { default as CreateTaskButton } from "./tasks/CreateTaskButton";
 export { default as TaskPlayButton } from "./tasks/TaskPlayButton";
 
+// Re-export all task utilities, hooks, and constants for easy access
+export * from "./tasks";
+
 // Progress Components
 export { default as TaskProgressCircle } from "./progress/TaskProgressCircle";
 export { default as ProgressDashboard } from "./progress/ProgressDashboard";

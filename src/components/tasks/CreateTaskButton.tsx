@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus, Loader2 } from "lucide-react";
+import { TASK_ERRORS, getTaskLabel } from "@/components/tasks";
 
 interface CreateTaskButtonProps {
   parentId?: Id<"tasks">;
@@ -27,6 +28,7 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
   const [error, setError] = useState<string | null>(null);
 
   const createTask = useMutation(api.tasks.createTask);
+  const taskLabels = getTaskLabel(!!parentId);
 
   if (mode === "OFF") return null;
 
@@ -34,7 +36,7 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
     e.preventDefault();
 
     if (!title.trim()) {
-      setError("Title is required");
+      setError(TASK_ERRORS.TITLE_REQUIRED);
       return;
     }
 
@@ -53,7 +55,7 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
       setDescription("");
       setIsOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create task");
+      setError(err instanceof Error ? err.message : TASK_ERRORS.CREATE_FAILED);
     } finally {
       setIsLoading(false);
     }
@@ -78,14 +80,12 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
           className="w-full justify-center text-orange-400 border-orange-400/30 hover:bg-orange-400/10 bg-transparent gap-2 py-2"
         >
           <Plus className="w-4 h-4" />
-          {parentId ? "Add New Topic" : "Add New Project"}
+          {taskLabels.button}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            {parentId ? "Add New Topic" : "Add New Project"}
-          </DialogTitle>
+          <DialogTitle>{taskLabels.dialog}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

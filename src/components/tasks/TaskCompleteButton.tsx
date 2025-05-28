@@ -3,6 +3,12 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Task } from "../types/Task";
 import { Check, Loader2 } from "lucide-react";
+import {
+  isTopLevelTask,
+  isTaskCompleted,
+  TASK_ERRORS,
+  TASK_LABELS,
+} from "@/components/tasks";
 
 interface TaskCompleteButtonProps {
   task: Task;
@@ -20,12 +26,12 @@ function TaskCompleteButton({
 
   const completeTask = useMutation(api.tasks.completeTask);
 
-  // Don't show button for top-level tasks (level 0)
-  if (level === 0) {
+  // Don't show button for top-level tasks
+  if (isTopLevelTask(level)) {
     return null;
   }
 
-  const isCompleted = task.completionPercentage === 100;
+  const isCompleted = isTaskCompleted(task.completionPercentage);
   const canClick = !isCompleted && !isLoading;
 
   const handleComplete = async (e: React.MouseEvent) => {
@@ -40,7 +46,9 @@ function TaskCompleteButton({
     try {
       await completeTask({ taskId: task._id });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to complete task");
+      setError(
+        err instanceof Error ? err.message : TASK_ERRORS.COMPLETE_FAILED,
+      );
       console.error("Error completing task:", err);
     } finally {
       setIsLoading(false);
@@ -55,8 +63,8 @@ function TaskCompleteButton({
   // Determine title text
   const getTitle = () => {
     if (error) return error;
-    if (isCompleted) return "Task completed";
-    return "Complete this task";
+    if (isCompleted) return TASK_LABELS.TASK_COMPLETED;
+    return TASK_LABELS.COMPLETE_TASK;
   };
 
   return (

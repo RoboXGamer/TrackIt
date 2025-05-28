@@ -1,12 +1,14 @@
-import { useState } from "react";
 import { Task } from "../types/Task";
 import {
-  TaskActions,
   TaskProgressCircle,
   TaskTimeDisplay,
-  TaskPlayButton,
   SubTaskContainer,
 } from "@/components";
+import {
+  TaskActionButtons,
+  useTaskExpansion,
+  calculateTaskPadding,
+} from "@/components/tasks";
 import { href, useNavigate } from "react-router";
 
 interface TopLevelTaskProps {
@@ -14,30 +16,28 @@ interface TopLevelTaskProps {
   level: number;
 }
 
+/**
+ * REFACTORED TopLevelTask component
+ * - Uses custom hooks for shared logic
+ * - Uses utility functions for calculations
+ * - Uses reusable components for action buttons
+ * - Cleaner, more maintainable code
+ */
 function TopLevelTask({ task, level }: TopLevelTaskProps) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const paddingLeft = level * 1.5;
+  const navigate = useNavigate();
+  const { isExpanded, handleClick } = useTaskExpansion();
+  const paddingLeft = calculateTaskPadding(level, true);
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    // Prevent expansion when clicking on interactive elements
-    const target = e.target as HTMLElement;
-    const isInteractiveElement = target.closest(
-      'button, [role="button"], input, select, textarea, a',
-    );
-
-    if (!isInteractiveElement) {
-      setIsExpanded(!isExpanded);
-    }
+  const handlePlayTask = (task: Task) => {
+    navigate(href("/tasks/:id", { id: task._id }));
   };
-
-  let navigate = useNavigate();
 
   return (
     <div className="w-full max-w-4xl mx-auto rounded-lg border-2">
       <div
         className="w-full px-4 py-3 hover:bg-gray-800/30 transition-all duration-200 cursor-pointer relative bg-slate-900"
         style={{ marginLeft: `${paddingLeft}rem` }}
-        onClick={handleCardClick}
+        onClick={(e) => handleClick(e)}
       >
         <div className="flex items-center">
           <div className="flex items-center gap-4 flex-1 pr-24">
@@ -54,23 +54,18 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
               />
             </div>
           </div>
-          <div className="absolute right-4 flex items-center gap-2">
-            <TaskActions task={task} showDelete={false} />
-            <TaskPlayButton
+
+          <div className="absolute right-4">
+            <TaskActionButtons
               task={task}
-              onPlay={(task) => {
-                navigate(
-                  href("/tasks/:id", {
-                    id: task._id,
-                  }),
-                );
-              }}
+              level={level}
+              showDelete={false}
+              onPlay={handlePlayTask}
             />
           </div>
         </div>
       </div>
 
-      {/* Expanded Content - Subtasks */}
       <SubTaskContainer
         parentTask={task}
         level={level}
