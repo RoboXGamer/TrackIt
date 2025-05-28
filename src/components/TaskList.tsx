@@ -8,8 +8,10 @@ interface TaskListProps {
 
 function TaskList({ tasks, level }: TaskListProps) {
   return (
-    <div className="w-full space-y-1">
-      {tasks?.map((task) => <TaskItem key={task._id} task={task} level={level} />)}
+    <div className="w-full space-y-2">
+      {tasks?.map((task) => (
+        <TaskItem key={task._id} task={task} level={level} />
+      ))}
     </div>
   );
 }

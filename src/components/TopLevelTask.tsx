@@ -31,9 +31,9 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
   let navigate = useNavigate();
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border border-dark-turquoise inset-shadow-dark-turquoise">
+    <div className="w-full max-w-4xl mx-auto rounded-lg border-2">
       <div
-        className="w-full px-4 py-3 hover:bg-gray-800/30 transition-all duration-200 cursor-pointer relative"
+        className="w-full px-4 py-3 hover:bg-gray-800/30 transition-all duration-200 cursor-pointer relative bg-slate-900"
         style={{ marginLeft: `${paddingLeft}rem` }}
         onClick={handleCardClick}
       >
