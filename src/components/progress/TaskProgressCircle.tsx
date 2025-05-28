@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { useAdminMode } from "@/components/admin-mode-provider";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { useAdminMode } from "@/components/providers/AdminModeProvider";
+import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -14,17 +14,17 @@ import {
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
-interface ProgressCircleProps {
+interface TaskProgressCircleProps {
   taskId: Id<"tasks">;
   completionPercentage: number;
   size?: "sm" | "md" | "lg";
 }
 
-function ProgressCircle({
+function TaskProgressCircle({
   taskId,
   completionPercentage,
   size = "md",
-}: ProgressCircleProps) {
+}: TaskProgressCircleProps) {
   const { mode } = useAdminMode();
   const [isOpen, setIsOpen] = useState(false);
   const [progress, setProgress] = useState([completionPercentage]);
@@ -209,4 +209,4 @@ function ProgressCircle({
   );
 }
 
-export default ProgressCircle;
+export default TaskProgressCircle;

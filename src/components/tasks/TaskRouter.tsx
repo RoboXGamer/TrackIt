@@ -1,13 +1,12 @@
-import { Task } from "./types/Task";
-import TopLevelTask from "./TopLevelTask";
-import SubTask from "./SubTask";
+import { Task } from "../types/Task";
+import { TopLevelTask, SubTask } from "@/components/tasks";
 
-interface TaskItemProps {
+interface TaskRouterProps {
   task: Task;
   level: number;
 }
 
-function TaskItem({ task, level }: TaskItemProps) {
+function TaskRouter({ task, level }: TaskRouterProps) {
   // Render different components based on task level
   if (level === 0) {
     return <TopLevelTask task={task} level={level} />;
@@ -16,4 +15,4 @@ function TaskItem({ task, level }: TaskItemProps) {
   return <SubTask task={task} level={level} />;
 }
 
-export default TaskItem;
+export default TaskRouter;

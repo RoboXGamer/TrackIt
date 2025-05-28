@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { Task } from "./types/Task";
-import TaskActions from "./TaskActions";
-import ProgressCircle from "./ProgressCircle";
-import TaskTimeDisplay from "./TaskTimeDisplay";
-import PlayButton from "./PlayButton";
-import SubTaskContainer from "./SubTaskContainer";
+import { Task } from "../types/Task";
+import {
+  TaskActions,
+  TaskProgressCircle,
+  TaskTimeDisplay,
+  TaskPlayButton,
+  SubTaskContainer,
+} from "@/components";
 import { href, useNavigate } from "react-router";
 
 interface TopLevelTaskProps {
@@ -39,7 +41,7 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
       >
         <div className="flex items-center">
           <div className="flex items-center gap-4 flex-1 pr-24">
-            <ProgressCircle
+            <TaskProgressCircle
               taskId={task._id}
               completionPercentage={task.completionPercentage ?? 0}
               size="lg"
@@ -54,7 +56,7 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
           </div>
           <div className="absolute right-4 flex items-center gap-2">
             <TaskActions task={task} showDelete={false} />
-            <PlayButton
+            <TaskPlayButton
               task={task}
               onPlay={(task) => {
                 navigate(

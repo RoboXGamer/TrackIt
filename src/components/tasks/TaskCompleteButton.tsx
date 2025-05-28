@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Task } from "./types/Task";
+import { api } from "../../../convex/_generated/api";
+import { Task } from "../types/Task";
 import { Check, Loader2 } from "lucide-react";
 
 interface TaskCompleteButtonProps {
@@ -10,7 +10,11 @@ interface TaskCompleteButtonProps {
   className?: string;
 }
 
-function TaskCompleteButton({ task, level, className = "" }: TaskCompleteButtonProps) {
+function TaskCompleteButton({
+  task,
+  level,
+  className = "",
+}: TaskCompleteButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 

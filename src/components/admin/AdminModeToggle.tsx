@@ -1,5 +1,5 @@
-import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
-import { useAdminMode } from "../components/admin-mode-provider";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { useAdminMode } from "../providers/AdminModeProvider";
 
 function AdminModeToggle() {
   const { mode, setMode } = useAdminMode();

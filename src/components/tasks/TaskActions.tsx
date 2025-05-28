@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { useAdminMode } from "@/components/admin-mode-provider";
-import { api } from "../../convex/_generated/api";
+import { useAdminMode } from "@/components/providers/AdminModeProvider";
+import { api } from "../../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Edit, Trash2, Loader2 } from "lucide-react";
-import { Task } from "./types/Task";
+import { Task } from "../types/Task";
 
 interface TaskActionsProps {
   task: Task;
@@ -201,7 +201,9 @@ function TaskActions({ task, showDelete }: TaskActionsProps) {
                   onClick={handleDelete}
                   disabled={isLoading}
                 >
-                  {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                  {isLoading && (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  )}
                   Delete Task
                 </Button>
               </div>

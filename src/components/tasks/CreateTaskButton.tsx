@@ -1,18 +1,24 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
-import { useAdminMode } from "@/components/admin-mode-provider";
-import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
+import { useAdminMode } from "@/components/providers/AdminModeProvider";
+import { api } from "../../../convex/_generated/api";
+import { Id } from "../../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Plus, Loader2 } from "lucide-react";
 
-interface NewTaskButtonProps {
+interface CreateTaskButtonProps {
   parentId?: Id<"tasks">;
 }
 
-function NewTaskButton({ parentId }: NewTaskButtonProps) {
+function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
   const { mode } = useAdminMode();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -96,7 +102,10 @@ function NewTaskButton({ parentId }: NewTaskButtonProps) {
             />
           </div>
           <div>
-            <label htmlFor="description" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium mb-1"
+            >
               Description
             </label>
             <Input
@@ -132,4 +141,4 @@ function NewTaskButton({ parentId }: NewTaskButtonProps) {
   );
 }
 
-export default NewTaskButton;
+export default CreateTaskButton;

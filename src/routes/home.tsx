@@ -1,12 +1,13 @@
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import SignInForm from "@/components/SignInForm.tsx";
-import SignOutButton from "@/components/SignOutButton.tsx";
 import { api } from "../../convex/_generated/api";
-import TaskList from "@/components/TaskList";
-import AdminModeToggle from "@/components/AdminModeToggle";
 import { ModeToggle as ThemeModeToggle } from "@/components/ui/mode-toggle";
-import NewTaskButton from "@/components/NewTaskButton";
-
+import {
+  SignInForm,
+  SignOutButton,
+  TaskList,
+  AdminModeToggle,
+  CreateTaskButton,
+} from "@/components";
 import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
@@ -37,7 +38,7 @@ export default function Home() {
               <div className="w-full space-y-1">
                 <TaskList tasks={tasks} level={0} />
                 <div className="mt-4 px-4">
-                  <NewTaskButton />
+                  <CreateTaskButton />
                 </div>
               </div>
             </section>

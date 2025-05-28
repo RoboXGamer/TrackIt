@@ -1,9 +1,7 @@
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
-import { Task } from "./types/Task";
-import TaskList from "./TaskList";
-import NewTaskButton from "./NewTaskButton";
-import { useAdminMode } from "./admin-mode-provider";
+import { api } from "../../../convex/_generated/api";
+import { Task } from "../types/Task";
+import { TaskList, CreateTaskButton, useAdminMode } from "@/components";
 
 interface SubTaskContainerProps {
   parentTask: Task;
@@ -42,7 +40,7 @@ function SubTaskContainer({
           style={{ marginLeft: `${(level + 1) * 1}rem` }}
           className="py-2 px-4 relative"
         >
-          <NewTaskButton parentId={parentTask._id} />
+          <CreateTaskButton parentId={parentTask._id} />
         </div>
       )}
     </div>

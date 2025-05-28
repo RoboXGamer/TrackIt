@@ -1,5 +1,5 @@
-import TaskItem from "./TaskItem";
-import { Task } from "./types/Task";
+import TaskRouter from "./TaskRouter";
+import { Task } from "../types/Task";
 
 interface TaskListProps {
   tasks: Task[] | undefined;
@@ -10,7 +10,7 @@ function TaskList({ tasks, level }: TaskListProps) {
   return (
     <div className="w-full space-y-2">
       {tasks?.map((task) => (
-        <TaskItem key={task._id} task={task} level={level} />
+        <TaskRouter key={task._id} task={task} level={level} />
       ))}
     </div>
   );

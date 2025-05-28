@@ -5,7 +5,7 @@ import "./index.css";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import { ThemeProvider } from "../src/components/ui/theme-provider";
-import { AdminModeProvider } from "../src/components/admin-mode-provider";
+import { AdminModeProvider } from "../src/components/providers/AdminModeProvider";
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 

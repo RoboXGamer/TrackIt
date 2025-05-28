@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Task } from "./types/Task";
-import TaskActions from "./TaskActions";
-import SubTaskContainer from "./SubTaskContainer";
-import TaskCompleteButton from "./TaskCompleteButton";
-import PlayButton from "./PlayButton";
+import { Task } from "../types/Task";
+import {
+  TaskActions,
+  SubTaskContainer,
+  TaskCompleteButton,
+  TaskPlayButton,
+} from "@/components/tasks";
 import { Progress } from "@/components/ui/progress";
 
 interface SubTaskProps {
@@ -20,7 +22,9 @@ function SubTask({ task, level }: SubTaskProps) {
 
     // Prevent expansion when clicking on interactive elements
     const target = e.target as HTMLElement;
-    const isInteractiveElement = target.closest('button, [role="button"], input, select, textarea, a');
+    const isInteractiveElement = target.closest(
+      'button, [role="button"], input, select, textarea, a',
+    );
 
     if (!isInteractiveElement) {
       setIsExpanded(!isExpanded);
@@ -34,7 +38,7 @@ function SubTask({ task, level }: SubTaskProps) {
     <>
       <div
         className={`relative w-full ${
-          canExpand ? 'cursor-pointer hover:bg-gray-800/30' : ''
+          canExpand ? "cursor-pointer hover:bg-gray-800/30" : ""
         } transition-all duration-200`}
         style={{ paddingLeft: `${level * 1}rem` }}
         onClick={canExpand ? handleSubTaskClick : undefined}
@@ -43,7 +47,9 @@ function SubTask({ task, level }: SubTaskProps) {
           <div className="flex-1">
             {/* Task Title */}
             <div className="flex items-center mb-2">
-              <span className="text-sm font-medium text-white">{task.title}</span>
+              <span className="text-sm font-medium text-white">
+                {task.title}
+              </span>
             </div>
             {/* Progress Bar */}
             <div className="flex items-center gap-3 w-full">
@@ -61,7 +67,7 @@ function SubTask({ task, level }: SubTaskProps) {
           <div className="flex items-end gap-2">
             <TaskActions task={task} showDelete={true} />
             <TaskCompleteButton task={task} level={level} />
-            <PlayButton task={task} />
+            <TaskPlayButton task={task} />
           </div>
         </div>
       </div>
