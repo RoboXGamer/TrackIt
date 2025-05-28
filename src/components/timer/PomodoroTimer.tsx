@@ -259,7 +259,9 @@ const SegmentedCircularProgress: React.FC<{
   }
 
   return (
-    <div className={`relative ${className} rotate-180`}>
+    <div
+      className={`relative ${className} rotate-180 translate-y-4/5 pointer-events-none`}
+    >
       <svg
         width={size}
         height={svgHeight}
@@ -408,17 +410,41 @@ const PomodoroTimerComponent: React.FC<{ taskId: Id<"tasks"> }> = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[600px] bg-slate-900 rounded-2xl p-8 relative">
+    <section
+      className="flex flex-col bg-slate-900 rounded-2xl p-4 max-w-sm aspect-square"
+      style={
+        {
+          "--timer-stroke": "12px",
+          "--session-indicator-size": "40px",
+          "--control-button-lg": "64px",
+          "--control-button-md": "48px",
+          "--control-button-sm": "40px",
+        } as React.CSSProperties
+      }
+      aria-label="Pomodoro Timer"
+      role="timer"
+    >
       {/* Header */}
-      <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
-        <div className="text-white/70 text-lg font-medium bg-white/10 rounded-full w-10 h-10 flex items-center justify-center">
+      <header className="flex justify-between items-center">
+        <div
+          className="text-white/70 text-lg font-medium bg-white/10 rounded-full flex items-center justify-center"
+          style={{
+            width: "var(--session-indicator-size)",
+            height: "var(--session-indicator-size)",
+          }}
+          aria-label={`Session ${currentSession} of ${settings.sessionsUntilLongBreak}`}
+        >
           {currentSession}
         </div>
         <PomodoroSettingsDialog />
-      </div>
+      </header>
 
       {/* Mode indicator */}
-      <div className="text-white/70 text-sm font-medium mb-12 mt-8">
+      <div
+        className="text-white/70 text-sm font-medium text-center"
+        aria-live="polite"
+        aria-label="Timer status"
+      >
         {!isActive && timeRemaining < totalTime
           ? "paused"
           : isBreak
@@ -426,67 +452,102 @@ const PomodoroTimerComponent: React.FC<{ taskId: Id<"tasks"> }> = ({
             : "focus mode"}
       </div>
 
-      {/* Circular timer */}
-      <div className="relative mb-8">
-        <SegmentedCircularProgress
-          currentSession={currentSession}
-          totalSessions={settings.sessionsUntilLongBreak}
-          currentProgress={progress}
-          size={320}
-          strokeWidth={12}
-          className="mb-4"
-        />
+      {/* Circular timer container - flex-1 to take remaining space */}
+      <div className="flex-1 flex flex-col items-center justify-center relative">
+        <div className="relative">
+          <SegmentedCircularProgress
+            currentSession={currentSession}
+            totalSessions={settings.sessionsUntilLongBreak}
+            currentProgress={progress}
+            size={320}
+            strokeWidth={12}
+          />
 
-        {/* Timer display */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center mt-8">
-          <div className="text-white text-4xl font-light mb-2">
-            {formatTime(timeRemaining)}
-          </div>
-          <div className="text-white/50 text-sm">
-            {formatSessionTime(totalTimeSpent)}
+          {/* Timer display overlay */}
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center pt-12"
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <time
+              className="text-white text-4xl font-light mb-2"
+              dateTime={`PT${timeRemaining}S`}
+              aria-label={`Time remaining: ${formatTime(timeRemaining)}`}
+            >
+              {formatTime(timeRemaining)}
+            </time>
+            <div
+              className="text-white/50 text-sm"
+              aria-label={`Session time: ${formatSessionTime(totalTimeSpent)}`}
+            >
+              {formatSessionTime(totalTimeSpent)}
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Control buttons */}
+      {/* Control buttons */}
+      <nav
+        className="pomodoro-timer__controls flex justify-center items-center gap-4"
+        aria-label="Timer controls"
+      >
         {isActive ? (
           /* Single pause button when active */
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-            <Button
-              onClick={toggleTimer}
-              size="icon"
-              className="w-14 h-14 rounded-full bg-white text-slate-900 hover:bg-white/90"
-            >
-              <Pause className="h-6 w-6" />
-            </Button>
-          </div>
+          <Button
+            onClick={toggleTimer}
+            size="icon"
+            className="pomodoro-timer__control-button pomodoro-timer__control-button--primary rounded-full bg-white text-slate-900 hover:bg-white/90 focus:ring-2 focus:ring-white/50"
+            style={{
+              width: "var(--control-button-lg)",
+              height: "var(--control-button-lg)",
+            }}
+            aria-label="Pause timer"
+          >
+            <Pause className="h-6 w-6" aria-hidden="true" />
+          </Button>
         ) : (
           /* Three buttons when paused */
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-4">
+          <>
             <Button
               onClick={resetTimer}
               size="icon"
-              className="w-12 h-12 rounded-full bg-white text-slate-900 hover:bg-white/90"
+              className="pomodoro-timer__control-button pomodoro-timer__control-button--secondary rounded-full bg-white text-slate-900 hover:bg-white/90 focus:ring-2 focus:ring-white/50"
+              style={{
+                width: "var(--control-button-md)",
+                height: "var(--control-button-md)",
+              }}
+              aria-label="Reset timer"
             >
-              <RotateCcw className="h-5 w-5" />
+              <RotateCcw className="h-5 w-5" aria-hidden="true" />
             </Button>
             <Button
               onClick={toggleTimer}
               size="icon"
-              className="w-16 h-16 rounded-full bg-white text-slate-900 hover:bg-white/90"
+              className="pomodoro-timer__control-button pomodoro-timer__control-button--primary rounded-full bg-white text-slate-900 hover:bg-white/90 focus:ring-2 focus:ring-white/50"
+              style={{
+                width: "var(--control-button-lg)",
+                height: "var(--control-button-lg)",
+              }}
+              aria-label="Start timer"
             >
-              <Play className="h-8 w-8 ml-0.5" />
+              <Play className="h-8 w-8 ml-0.5" aria-hidden="true" />
             </Button>
             <Button
               onClick={skipSession}
               size="icon"
-              className="w-12 h-12 rounded-full bg-white text-slate-900 hover:bg-white/90"
+              className="pomodoro-timer__control-button pomodoro-timer__control-button--secondary rounded-full bg-white text-slate-900 hover:bg-white/90 focus:ring-2 focus:ring-white/50"
+              style={{
+                width: "var(--control-button-md)",
+                height: "var(--control-button-md)",
+              }}
+              aria-label="Skip to next session"
             >
-              <SkipForward className="h-5 w-5" />
+              <SkipForward className="h-5 w-5" aria-hidden="true" />
             </Button>
-          </div>
+          </>
         )}
-      </div>
-    </div>
+      </nav>
+    </section>
   );
 };
 
