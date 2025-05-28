@@ -26,3 +26,5 @@ build
 
 # Ignored for the template, you probably want to remove it:
 package-lock.json
+# Local Netlify folder
+.netlify
