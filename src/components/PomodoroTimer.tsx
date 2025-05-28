@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Id } from '../../convex/_generated/dataModel';
-import { useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
+import React, { useState, useEffect } from "react";
+import { Id } from "../../convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../convex/_generated/api";
 
 const PomodoroTimer: React.FC<{ taskId: Id<"tasks"> }> = ({ taskId }) => {
   const initialTime = 25 * 60; // 25 minutes in seconds
@@ -20,8 +20,8 @@ const PomodoroTimer: React.FC<{ taskId: Id<"tasks"> }> = ({ taskId }) => {
       // In a real app, consider updating less frequently (e.g., every 30-60 seconds)
       // or only at the end of a Pomodoro session to reduce backend calls.
       // Also, a more robust approach might fetch the current timeSpent before incrementing.
-      updateTask({ taskId, updates: { timeSpent: (timeSpent ?? 0) + 1000 } });
-
+      const timeSpent = getTask?.timeSpent;
+      updateTask({ taskId, timeSpent: (timeSpent ?? 0) + 1000 });
     } else if (!isActive && timeRemaining !== initialTime) {
       if (interval) clearInterval(interval);
     }
@@ -39,6 +39,7 @@ const PomodoroTimer: React.FC<{ taskId: Id<"tasks"> }> = ({ taskId }) => {
   };
 
   const updateTask = useMutation(api.tasks.updateTask);
+  const getTask = useQuery(api.tasks.getTask, { taskId });
 
   const resetTimer = () => {
     setTimeRemaining(initialTime);
@@ -48,8 +49,8 @@ const PomodoroTimer: React.FC<{ taskId: Id<"tasks"> }> = ({ taskId }) => {
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    const formattedMinutes = String(minutes).padStart(2, '0');
-    const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+    const formattedMinutes = String(minutes).padStart(2, "0");
+    const formattedSeconds = String(remainingSeconds).padStart(2, "0");
     return `${formattedMinutes}:${formattedSeconds}`;
   };
 

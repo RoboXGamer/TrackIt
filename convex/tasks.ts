@@ -58,7 +58,11 @@ export const isLeafTask = query({
 });
 
 // Helper function to get the next order value for a new task
-async function getNextOrderValue(ctx: any, parentId: string | undefined, userId: string) {
+async function getNextOrderValue(
+  ctx: any,
+  parentId: string | undefined,
+  userId: string,
+) {
   const siblings = await ctx.db
     .query("tasks")
     .withIndex("by_parent", (q: any) => q.eq("parentId", parentId))
@@ -90,7 +94,11 @@ async function deleteTaskAndSubtasks(ctx: any, taskId: string, userId: string) {
 }
 
 // Helper function to check if a task has any children
-async function hasChildren(ctx: any, taskId: string, userId: string): Promise<boolean> {
+async function hasChildren(
+  ctx: any,
+  taskId: string,
+  userId: string,
+): Promise<boolean> {
   const children = await ctx.db
     .query("tasks")
     .withIndex("by_parent", (q: any) => q.eq("parentId", taskId))
@@ -101,7 +109,11 @@ async function hasChildren(ctx: any, taskId: string, userId: string): Promise<bo
 }
 
 // Helper function to calculate parent progress based on children
-async function updateParentProgress(ctx: any, parentId: string, userId: string) {
+async function updateParentProgress(
+  ctx: any,
+  parentId: string,
+  userId: string,
+) {
   // Get all children of the parent
   const children = await ctx.db
     .query("tasks")
@@ -121,8 +133,12 @@ async function updateParentProgress(ctx: any, parentId: string, userId: string) 
   // Update parent task
   await ctx.db.patch(parentId, {
     completionPercentage: Math.round(averageCompletion * 100) / 100, // Round to 2 decimal places
-    status: averageCompletion === 0 ? "not_started" :
-            averageCompletion === 100 ? "completed" : "in_progress"
+    status:
+      averageCompletion === 0
+        ? "not_started"
+        : averageCompletion === 100
+          ? "completed"
+          : "in_progress",
   });
 
   // Get the parent task to check if it has a parent (for recursive updates)
@@ -176,11 +192,14 @@ export const updateTask = mutation({
     taskId: v.id("tasks"),
     title: v.optional(v.string()),
     description: v.optional(v.string()),
-    status: v.optional(v.union(
-      v.literal("not_started"),
-      v.literal("in_progress"),
-      v.literal("completed")
-    )),
+    status: v.optional(
+      v.union(
+        v.literal("not_started"),
+        v.literal("in_progress"),
+        v.literal("completed"),
+      ),
+    ),
+    timeSpent: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -197,7 +216,8 @@ export const updateTask = mutation({
     // Prepare update object with only provided fields
     const updates: any = {};
     if (args.title !== undefined) updates.title = args.title.trim();
-    if (args.description !== undefined) updates.description = args.description?.trim();
+    if (args.description !== undefined)
+      updates.description = args.description?.trim();
     if (args.status !== undefined) {
       updates.status = args.status;
       // If marking as completed, set completion to 100%
@@ -205,6 +225,7 @@ export const updateTask = mutation({
         updates.completionPercentage = 100;
       }
     }
+    if (args.timeSpent !== undefined) updates.timeSpent = args.timeSpent;
 
     await ctx.db.patch(args.taskId, updates);
     return args.taskId;
@@ -326,13 +347,15 @@ export const completeTask = mutation({
     // Check if this task has children - only allow completion of leaf nodes
     const taskHasChildren = await hasChildren(ctx, args.taskId, userId);
     if (taskHasChildren) {
-      throw new Error("Cannot complete a task that has subtasks. Complete all subtasks first.");
+      throw new Error(
+        "Cannot complete a task that has subtasks. Complete all subtasks first.",
+      );
     }
 
     // Complete the task
     await ctx.db.patch(args.taskId, {
       completionPercentage: 100,
-      status: "completed"
+      status: "completed",
     });
 
     // Update parent progress if this task has a parent

@@ -31,7 +31,7 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
   let navigate = useNavigate();
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
+    <div className="w-full max-w-4xl mx-auto rounded-lg border border-dark-turquoise inset-shadow-dark-turquoise">
       <div
         className="w-full px-4 py-3 hover:bg-gray-800/30 transition-all duration-200 cursor-pointer relative"
         style={{ marginLeft: `${paddingLeft}rem` }}
@@ -59,7 +59,7 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
               onPlay={(task) => {
                 navigate(
                   href("/tasks/:id", {
-                    id: task.title,
+                    id: task._id,
                   }),
                 );
               }}
