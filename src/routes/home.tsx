@@ -1,15 +1,22 @@
-"use client";
-
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import SignInForm from "./components/SignInForm";
-import SignOutButton from "./components/SignOutButton";
-import { api } from "../convex/_generated/api";
-import TaskList from "./components/TaskList";
-import AdminModeToggle from "./components/AdminModeToggle";
-import { ModeToggle as ThemeModeToggle } from "./components/ui/mode-toggle";
-import NewTaskButton from "./components/NewTaskButton";
+import SignInForm from "@/components/SignInForm.tsx";
+import SignOutButton from "@/components/SignOutButton.tsx";
+import { api } from "../../convex/_generated/api";
+import TaskList from "@/components/TaskList";
+import AdminModeToggle from "@/components/AdminModeToggle";
+import { ModeToggle as ThemeModeToggle } from "@/components/ui/mode-toggle";
+import NewTaskButton from "@/components/NewTaskButton";
 
-export default function App() {
+import type { Route } from "./+types/home";
+
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "TEST" },
+    { name: "description", content: "Welcome to React Router!" },
+  ];
+}
+
+export default function Home() {
   const tasks = useQuery(api.tasks.listTasks, {});
   tasks?.sort((a, b) => a.order - b.order);
   return (

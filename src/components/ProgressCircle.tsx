@@ -5,7 +5,13 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
 
 interface ProgressCircleProps {
@@ -14,7 +20,11 @@ interface ProgressCircleProps {
   size?: "sm" | "md" | "lg";
 }
 
-function ProgressCircle({ taskId, completionPercentage, size = "md" }: ProgressCircleProps) {
+function ProgressCircle({
+  taskId,
+  completionPercentage,
+  size = "md",
+}: ProgressCircleProps) {
   const { mode } = useAdminMode();
   const [isOpen, setIsOpen] = useState(false);
   const [progress, setProgress] = useState([completionPercentage]);
@@ -34,7 +44,9 @@ function ProgressCircle({ taskId, completionPercentage, size = "md" }: ProgressC
       });
       setIsOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update progress");
+      setError(
+        err instanceof Error ? err.message : "Failed to update progress",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -47,9 +59,27 @@ function ProgressCircle({ taskId, completionPercentage, size = "md" }: ProgressC
 
   // Size configurations
   const sizeConfig = {
-    sm: { width: 38, height: 38, radius: 16, strokeWidth: 3, textSize: "text-xs" },
-    md: { width: 48, height: 48, radius: 20, strokeWidth: 4, textSize: "text-sm" },
-    lg: { width: 64, height: 64, radius: 28, strokeWidth: 5, textSize: "text-base" }
+    sm: {
+      width: 38,
+      height: 38,
+      radius: 16,
+      strokeWidth: 3,
+      textSize: "text-xs",
+    },
+    md: {
+      width: 48,
+      height: 48,
+      radius: 20,
+      strokeWidth: 4,
+      textSize: "text-sm",
+    },
+    lg: {
+      width: 64,
+      height: 64,
+      radius: 28,
+      strokeWidth: 5,
+      textSize: "text-base",
+    },
   };
 
   const config = sizeConfig[size];
@@ -57,7 +87,10 @@ function ProgressCircle({ taskId, completionPercentage, size = "md" }: ProgressC
   const strokeDashoffset = circumference * (1 - completionPercentage / 100);
 
   const progressCircle = (
-    <div className={`relative`} style={{ width: config.width, height: config.height }}>
+    <div
+      className={`relative`}
+      style={{ width: config.width, height: config.height }}
+    >
       <svg className="w-full h-full transform -rotate-90">
         <circle
           cx={config.width / 2}
@@ -79,8 +112,10 @@ function ProgressCircle({ taskId, completionPercentage, size = "md" }: ProgressC
           className="transition-all duration-300"
         />
       </svg>
-      <div className={`absolute inset-0 flex items-center justify-center ${config.textSize} font-medium`}>
-        {completionPercentage}%
+      <div
+        className={`absolute inset-0 flex items-center justify-center ${config.textSize} font-medium`}
+      >
+        {completionPercentage.toFixed(0)}%
       </div>
     </div>
   );
@@ -91,10 +126,13 @@ function ProgressCircle({ taskId, completionPercentage, size = "md" }: ProgressC
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      setIsOpen(open);
-      if (!open) resetForm();
-    }}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) resetForm();
+      }}
+    >
       <DialogTrigger asChild>
         <button className="hover:scale-105 transition-transform cursor-pointer">
           {progressCircle}

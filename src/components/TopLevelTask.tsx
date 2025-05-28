@@ -5,6 +5,7 @@ import ProgressCircle from "./ProgressCircle";
 import TaskTimeDisplay from "./TaskTimeDisplay";
 import PlayButton from "./PlayButton";
 import SubTaskContainer from "./SubTaskContainer";
+import { href, useNavigate } from "react-router";
 
 interface TopLevelTaskProps {
   task: Task;
@@ -18,12 +19,16 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
   const handleCardClick = (e: React.MouseEvent) => {
     // Prevent expansion when clicking on interactive elements
     const target = e.target as HTMLElement;
-    const isInteractiveElement = target.closest('button, [role="button"], input, select, textarea, a');
+    const isInteractiveElement = target.closest(
+      'button, [role="button"], input, select, textarea, a',
+    );
 
     if (!isInteractiveElement) {
       setIsExpanded(!isExpanded);
     }
   };
+
+  let navigate = useNavigate();
 
   return (
     <div className="w-full max-w-4xl mx-auto">
@@ -41,12 +46,24 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
             />
             <div>
               <h3 className="text-lg font-semibold text-white">{task.title}</h3>
-              <TaskTimeDisplay timeSpent={task.timeSpent} className="text-sm text-gray-400" />
+              <TaskTimeDisplay
+                timeSpent={task.timeSpent}
+                className="text-sm text-gray-400"
+              />
             </div>
           </div>
           <div className="absolute right-4 flex items-center gap-2">
             <TaskActions task={task} showDelete={false} />
-            <PlayButton task={task} />
+            <PlayButton
+              task={task}
+              onPlay={(task) => {
+                navigate(
+                  href("/tasks/:id", {
+                    id: task.title,
+                  }),
+                );
+              }}
+            />
           </div>
         </div>
       </div>
