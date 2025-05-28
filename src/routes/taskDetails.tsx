@@ -4,6 +4,13 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import PomodoroTimer from "@/components/PomodoroTimer";
 
+export function meta({}: Route.MetaArgs) {
+  return [
+    { title: "TrackIt - Task Details" },
+    { name: "description", content: "Welcome to TrackIt! Task Details Page" },
+  ];
+}
+
 export default function taskDetails({ params }: Route.ComponentProps) {
   const { id } = params;
   const taskId = id as Id<"tasks">;

@@ -11,8 +11,8 @@ import type { Route } from "./+types/home";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "TEST" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "TrackIt" },
+    { name: "description", content: "Welcome to TrackIt!" },
   ];
 }
 
