@@ -17,6 +17,9 @@ export { default as TaskPlayButton } from "./tasks/TaskPlayButton";
 // Re-export all task utilities, hooks, and constants for easy access
 export * from "./tasks";
 
+// Flashcards Components
+export * from "./flashcards";
+
 // Progress Components
 export { default as TaskProgressCircle } from "./progress/TaskProgressCircle";
 export { default as ProgressDashboard } from "./progress/ProgressDashboard";
@@ -32,3 +35,7 @@ export { AdminModeProvider, useAdminMode } from "./providers/AdminModeProvider";
 
 // Types
 export type { Task } from "./types/Task";
+
+export { default as Header } from "./Header";
+export { default as Footer } from "./Footer";
+export { default as BottomNavbar } from "./BottomNavbar";

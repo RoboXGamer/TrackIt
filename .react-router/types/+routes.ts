@@ -13,6 +13,21 @@ type Pages = {
   "/": {
     params: {};
   };
+  "/dashboard": {
+    params: {};
+  };
+  "/dashboard/flashcards": {
+    params: {};
+  };
+  "/dashboard/flashcards/organize": {
+    params: {};
+  };
+  "/dashboard/flashcards/practice": {
+    params: {};
+  };
+  "/dashboard/flashcards/review": {
+    params: {};
+  };
   "/tasks/:id": {
     params: {
       "id": string;
@@ -23,11 +38,39 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/tasks/:id";
+    page: "/" | "/dashboard" | "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review" | "/tasks/:id";
   };
   "routes/home.tsx": {
     id: "routes/home";
     page: "/";
+  };
+  "routes/dashboard/index.tsx": {
+    id: "routes/dashboard/index";
+    page: "/dashboard" | "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review";
+  };
+  "routes/dashboard/tasks.tsx": {
+    id: "routes/dashboard/tasks";
+    page: "/dashboard";
+  };
+  "routes/dashboard/flashcards.tsx": {
+    id: "routes/dashboard/flashcards";
+    page: "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review";
+  };
+  "routes/dashboard/flashcards/setup.tsx": {
+    id: "routes/dashboard/flashcards/setup";
+    page: "/dashboard/flashcards";
+  };
+  "routes/dashboard/flashcards/organize.tsx": {
+    id: "routes/dashboard/flashcards/organize";
+    page: "/dashboard/flashcards/organize";
+  };
+  "routes/dashboard/flashcards/practice.tsx": {
+    id: "routes/dashboard/flashcards/practice";
+    page: "/dashboard/flashcards/practice";
+  };
+  "routes/dashboard/flashcards/review.tsx": {
+    id: "routes/dashboard/flashcards/review";
+    page: "/dashboard/flashcards/review";
   };
   "routes/taskDetails.tsx": {
     id: "routes/taskDetails";
