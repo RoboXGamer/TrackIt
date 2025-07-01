@@ -8,6 +8,7 @@ export { default as TaskCompleteButton } from "./TaskCompleteButton";
 export { default as TaskTimeDisplay } from "./TaskTimeDisplay";
 export { default as CreateTaskButton } from "./CreateTaskButton";
 export { default as TaskPlayButton } from "./TaskPlayButton";
+export { default as Tasks } from "./Tasks";
 
 // Export reusable components
 export { TaskFormDialog } from "./components/TaskFormDialog";

@@ -32,7 +32,7 @@ function TaskCompleteButton({
   }
 
   const isCompleted = isTaskCompleted(task.completionPercentage);
-  const canClick = !isCompleted && !isLoading;
+  const canClick = !isLoading;
 
   const handleComplete = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering parent click events
@@ -77,7 +77,7 @@ function TaskCompleteButton({
       {isLoading ? (
         <Loader2 className="w-4 h-4 animate-spin" />
       ) : (
-        <Check className="w-4 h-4" />
+        <>{isCompleted ? <Check className="w-4 h-4" /> : null}</>
       )}
     </button>
   );

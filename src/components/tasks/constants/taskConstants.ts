@@ -18,26 +18,27 @@ export const TASK_COMPLETION = {
 
 // UI Constants
 export const TASK_UI = {
-  INTERACTIVE_ELEMENTS_SELECTOR: 'button, [role="button"], input, select, textarea, a',
-  TRANSITION_DURATION: 'duration-200',
+  INTERACTIVE_ELEMENTS_SELECTOR:
+    'button, [role="button"], input, select, textarea, a',
+  TRANSITION_DURATION: "duration-200",
 } as const;
 
 // Task labels and text
 export const TASK_LABELS = {
-  ADD_PROJECT: 'Add New Project',
-  ADD_TOPIC: 'Add New Topic',
-  CREATE_TASK: 'Create Task',
-  EDIT_TASK: 'Edit Task',
-  DELETE_TASK: 'Delete Task',
-  COMPLETE_TASK: 'Complete this task',
-  TASK_COMPLETED: 'Task completed',
+  ADD_SUBJECT: "Add New Subject",
+  ADD_TOPIC: "Add New Topic",
+  CREATE_TASK: "Create Task",
+  EDIT_TASK: "Edit Task",
+  DELETE_TASK: "Delete Task",
+  COMPLETE_TASK: "Complete this task",
+  TASK_COMPLETED: "Task completed",
 } as const;
 
 // Error messages
 export const TASK_ERRORS = {
-  TITLE_REQUIRED: 'Title is required',
-  UPDATE_FAILED: 'Failed to update task',
-  DELETE_FAILED: 'Failed to delete task',
-  CREATE_FAILED: 'Failed to create task',
-  COMPLETE_FAILED: 'Failed to complete task',
+  TITLE_REQUIRED: "Title is required",
+  UPDATE_FAILED: "Failed to update task",
+  DELETE_FAILED: "Failed to delete task",
+  CREATE_FAILED: "Failed to create task",
+  COMPLETE_FAILED: "Failed to complete task",
 } as const;

@@ -328,6 +328,32 @@ export const addTimeToTask = mutation({
   },
 });
 
+// Helper function to recursively set completion status for a task and its subtasks
+async function setTaskCompletionRecursively(
+  ctx: any,
+  taskId: string,
+  userId: string,
+  completed: boolean,
+) {
+  // Update the current task
+  await ctx.db.patch(taskId, {
+    completionPercentage: completed ? 100 : 0,
+    status: completed ? "completed" : "not_started",
+  });
+
+  // Get all direct children
+  const children = await ctx.db
+    .query("tasks")
+    .withIndex("by_parent", (q: any) => q.eq("parentId", taskId))
+    .filter((q: any) => q.eq(q.field("userId"), userId))
+    .collect();
+
+  // Recursively update all children
+  for (const child of children) {
+    await setTaskCompletionRecursively(ctx, child._id, userId, completed);
+  }
+}
+
 export const completeTask = mutation({
   args: {
     taskId: v.id("tasks"),
@@ -344,19 +370,11 @@ export const completeTask = mutation({
       throw new Error("Task not found or access denied");
     }
 
-    // Check if this task has children - only allow completion of leaf nodes
-    const taskHasChildren = await hasChildren(ctx, args.taskId, userId);
-    if (taskHasChildren) {
-      throw new Error(
-        "Cannot complete a task that has subtasks. Complete all subtasks first.",
-      );
-    }
+    // Determine new completion state (toggle)
+    const completed = task.completionPercentage !== 100 ? true : false;
 
-    // Complete the task
-    await ctx.db.patch(args.taskId, {
-      completionPercentage: 100,
-      status: "completed",
-    });
+    // Recursively set completion for this task and all subtasks
+    await setTaskCompletionRecursively(ctx, args.taskId, userId, completed);
 
     // Update parent progress if this task has a parent
     if (task.parentId) {

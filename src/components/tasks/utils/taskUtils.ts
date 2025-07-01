@@ -1,4 +1,8 @@
-import { TASK_HIERARCHY, TASK_COMPLETION } from "../constants/taskConstants";
+import {
+  TASK_HIERARCHY,
+  TASK_COMPLETION,
+  TASK_LABELS,
+} from "../constants/taskConstants";
 
 /**
  * Utility functions for task-related operations
@@ -7,9 +11,12 @@ import { TASK_HIERARCHY, TASK_COMPLETION } from "../constants/taskConstants";
 /**
  * Calculate padding for task based on hierarchy level
  */
-export function calculateTaskPadding(level: number, isTopLevel = false): number {
-  const multiplier = isTopLevel 
-    ? TASK_HIERARCHY.TOP_LEVEL_PADDING_MULTIPLIER 
+export function calculateTaskPadding(
+  level: number,
+  isTopLevel = false,
+): number {
+  const multiplier = isTopLevel
+    ? TASK_HIERARCHY.TOP_LEVEL_PADDING_MULTIPLIER
     : TASK_HIERARCHY.LEVEL_PADDING_MULTIPLIER;
   return level * multiplier;
 }
@@ -38,17 +45,20 @@ export function isTopLevelTask(level: number): boolean {
 /**
  * Get task label based on whether it has a parent
  */
-export function getTaskLabel(hasParent: boolean): { button: string; dialog: string } {
-  return hasParent 
-    ? { button: "Add New Topic", dialog: "Add New Topic" }
-    : { button: "Add New Project", dialog: "Add New Project" };
+export function getTaskLabel(hasParent: boolean): {
+  button: string;
+  dialog: string;
+} {
+  return hasParent
+    ? { button: TASK_LABELS.ADD_TOPIC, dialog: TASK_LABELS.ADD_TOPIC }
+    : { button: TASK_LABELS.ADD_SUBJECT, dialog: TASK_LABELS.ADD_SUBJECT };
 }
 
 /**
  * Generate CSS classes for task expansion state
  */
 export function getTaskExpansionClasses(canExpand: boolean): string {
-  return canExpand 
+  return canExpand
     ? "cursor-pointer hover:bg-gray-800/30 transition-all duration-200"
     : "transition-all duration-200";
 }
@@ -57,5 +67,7 @@ export function getTaskExpansionClasses(canExpand: boolean): string {
  * Check if an element is interactive (for click handling)
  */
 export function isInteractiveElement(target: HTMLElement): boolean {
-  return !!target.closest('button, [role="button"], input, select, textarea, a');
+  return !!target.closest(
+    'button, [role="button"], input, select, textarea, a',
+  );
 }

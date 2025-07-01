@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Task } from "../types/Task";
 import {
-  TaskActions,
   SubTaskContainer,
+  TaskActions,
   TaskCompleteButton,
-  TaskPlayButton,
 } from "@/components/tasks";
-import { Progress } from "@/components/ui/progress";
 import {
   calculateTaskPadding,
   isInteractiveElement,
   canTaskExpand,
 } from "@/components/tasks";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 interface SubTaskProps {
   task: Task;
@@ -45,15 +46,33 @@ function SubTask({ task, level }: SubTaskProps) {
         style={{ paddingLeft: `${paddingLeft}rem` }}
         onClick={canExpand ? handleSubTaskClick : undefined}
       >
-        <div className="py-3 px-4 relative flex gap-4">
-          <div className="flex-1">
-            {/* Task Title */}
-            <div className="flex items-center mb-2">
-              <span className="text-sm font-medium text-white">
-                {task.title}
-              </span>
+        <div
+          className={`flex py-3 px-4 rounded-lg transition-all duration-200 hover:bg-blue-500/5 flex-col`}
+        >
+          <div className="flex items-center space-x-3">
+            {level !== 1 ? (
+              <>
+                <TaskCompleteButton task={task} level={level} />
+              </>
+            ) : null}
+
+            <span
+              className={cn(
+                "font-medium transition-all",
+                task.completionPercentage === 100 && level !== 1
+                  ? "text-gray-400 line-through"
+                  : "text-gray-200",
+                level === 1 ? "text-md font-bold" : "text-sm",
+              )}
+            >
+              {task.title}
+            </span>
+            <div className="flex items-end gap-2">
+              <TaskActions task={task} showDelete={true} />
             </div>
-            {/* Progress Bar */}
+          </div>
+          {/* Progress Bar */}
+          {level === 1 && (
             <div className="flex items-center gap-3 w-full">
               <Progress
                 value={task.completionPercentage ?? 0}
@@ -63,14 +82,7 @@ function SubTask({ task, level }: SubTaskProps) {
                 {(task.completionPercentage ?? 0).toFixed(1)}%
               </span>
             </div>
-          </div>
-
-          {/* Fixed position action buttons */}
-          <div className="flex items-end gap-2">
-            <TaskActions task={task} showDelete={true} />
-            <TaskCompleteButton task={task} level={level} />
-            <TaskPlayButton task={task} />
-          </div>
+          )}
         </div>
       </div>
 
