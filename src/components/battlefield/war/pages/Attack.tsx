@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 import AttackWelcome from "../../components/battlefield/attack/AttackWelcome";
 import AttackPlan from "../../components/battlefield/attack/AttackPlan";
 import BeastBattle from "../../components/battlefield/attack/BeastBattle";

@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart3, Users, Trophy, TrendingUp, FileText, Target } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 const Index = () => {
   return (

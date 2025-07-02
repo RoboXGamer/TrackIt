@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router";
 import BeginBattle from "../../components/battlefield/war/BeginBattle";
 import WarConfiguration from "../../components/battlefield/war/WarConfiguration";
 import PTSReportCard from "./PTSReportCard";
