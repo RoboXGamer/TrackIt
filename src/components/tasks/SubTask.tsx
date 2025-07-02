@@ -10,16 +10,17 @@ import {
   isInteractiveElement,
   canTaskExpand,
 } from "@/components/tasks";
-import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { Id } from "../../../convex/_generated/dataModel";
 
 interface SubTaskProps {
   task: Task;
   level: number;
+  projectId: Id<"projects">;
 }
 
-function SubTask({ task, level }: SubTaskProps) {
+function SubTask({ task, level, projectId }: SubTaskProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSubTaskClick = (e: React.MouseEvent) => {
@@ -40,7 +41,7 @@ function SubTask({ task, level }: SubTaskProps) {
   return (
     <>
       <div
-        className={`relative w-full ${
+        className={`relative ${
           canExpand ? "cursor-pointer hover:bg-gray-800/30" : ""
         } transition-all duration-200`}
         style={{ paddingLeft: `${paddingLeft}rem` }}
@@ -92,6 +93,7 @@ function SubTask({ task, level }: SubTaskProps) {
           parentTask={task}
           level={level}
           isExpanded={isExpanded}
+          projectId={projectId}
         />
       )}
     </>

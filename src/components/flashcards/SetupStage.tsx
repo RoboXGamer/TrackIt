@@ -15,6 +15,8 @@ import { useNavigate } from "react-router";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import FlashcardPageLayout from "./FlashcardPageLayout";
+import { useQuery } from "convex/react";
+import { useProject } from "@/components/providers/ProjectProvider";
 
 const SetupStage = () => {
   const navigate = useNavigate();
@@ -25,11 +27,16 @@ const SetupStage = () => {
   const [videoURL, setVideoURL] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
 
+  const { selectedProjectId } = useProject();
+  const topLevelTasks = useQuery(
+    api.tasks.listTopLevelTasksByProject,
+    selectedProjectId ? { projectId: selectedProjectId } : "skip",
+  );
+
   const [manualCard, setManualCard] = useState({
     front: "",
     back: "",
     subject: "",
-    week: "",
     difficulty: "medium" as const,
   });
 
@@ -42,6 +49,10 @@ const SetupStage = () => {
 
   const handleGenerateFromContent = async () => {
     if (!file && !videoURL) return;
+    if (!selectedProjectId) {
+      console.error("No project selected. Cannot generate flashcards.");
+      return;
+    }
 
     setIsGenerating(true);
 
@@ -55,6 +66,7 @@ const SetupStage = () => {
         back: "AI Generated Back",
         difficulty: "medium",
         source: "ai_generated",
+        projectId: selectedProjectId,
       });
       setIsGenerating(false);
       navigate("/dashboard/flashcards/organize");
@@ -62,20 +74,23 @@ const SetupStage = () => {
   };
 
   const handleAddManualCard = async () => {
+    if (!selectedProjectId) {
+      console.error("No project selected. Cannot create flashcard.");
+      return;
+    }
     if (manualCard.front.trim() && manualCard.back.trim()) {
       await createFlashcard({
         front: manualCard.front,
         back: manualCard.back,
         subject: manualCard.subject || undefined,
-        week: manualCard.week || undefined,
         difficulty: manualCard.difficulty,
         source: "manual",
+        projectId: selectedProjectId,
       });
       setManualCard({
         front: "",
         back: "",
         subject: "",
-        week: "",
         difficulty: "medium",
       });
     }
@@ -97,20 +112,20 @@ const SetupStage = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-[#1C2541] p-8 rounded-2xl border border-[#2563EB]/20"
+          className="bg-[#1C2541] p-8 rounded-2xl border border-[#2563EB]/20 flex flex-col"
         >
           <div className="flex items-center gap-3 mb-6">
             <Wand2 className="text-[#2563EB]" size={24} />
             <h3 className="text-2xl font-semibold">AI Generation</h3>
           </div>
 
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6 flex-grow">
             {/* File Upload */}
-            <div>
+            <div className="flex-grow mb-6">
               <label className="block text-sm font-medium text-[#93A5CF] mb-2">
                 Upload PDF, Image, or Document
               </label>
-              <div className="relative">
+              <div className="relative flex-grow h-full">
                 <input
                   type="file"
                   accept="image/*,application/pdf,.txt,.docx"
@@ -120,7 +135,7 @@ const SetupStage = () => {
                 />
                 <label
                   htmlFor="file-upload"
-                  className="flex items-center justify-center w-full p-6 border-2 border-dashed border-[#2563EB]/30 rounded-xl hover:border-[#2563EB]/50 cursor-pointer transition-colors"
+                  className="flex items-center justify-center w-full h-full p-6 border-2 border-dashed border-[#2563EB]/30 rounded-xl hover:border-[#2563EB]/50 cursor-pointer transition-colors"
                 >
                   <div className="text-center">
                     <Upload className="mx-auto mb-2 text-[#2563EB]" size={32} />
@@ -133,7 +148,7 @@ const SetupStage = () => {
             </div>
 
             {/* Video URL */}
-            <div>
+            <div className="flex-shrink-0">
               <label className="block text-sm font-medium text-[#93A5CF] mb-2">
                 Or paste a video URL
               </label>
@@ -148,7 +163,9 @@ const SetupStage = () => {
 
             <Button
               onClick={handleGenerateFromContent}
-              disabled={(!file && !videoURL) || isGenerating}
+              disabled={
+                (!file && !videoURL) || isGenerating || !selectedProjectId
+              }
               className="w-full bg-[#2563EB] hover:bg-[#1E3A8A] h-12"
             >
               {isGenerating ? (
@@ -222,14 +239,23 @@ const SetupStage = () => {
                 <label className="block text-sm font-medium text-[#93A5CF] mb-2">
                   Subject
                 </label>
-                <Input
-                  placeholder="Math, Science..."
+                <Select
                   value={manualCard.subject}
-                  onChange={(e) =>
-                    setManualCard({ ...manualCard, subject: e.target.value })
+                  onValueChange={(value: string) =>
+                    setManualCard({ ...manualCard, subject: value })
                   }
-                  className="bg-[#0A0E27] border-[#2563EB]/30"
-                />
+                >
+                  <SelectTrigger className="w-full bg-[#0A0E27] border-[#2563EB]/30">
+                    <SelectValue placeholder="Select a subject" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#1C2541]">
+                    {topLevelTasks?.map((task) => (
+                      <SelectItem key={task._id} value={task.title}>
+                        {task.title}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>
@@ -243,7 +269,7 @@ const SetupStage = () => {
                   }
                 >
                   <SelectTrigger className="w-full bg-[#0A0E27] border-[#2563EB]/30">
-                    <SelectValue placeholder="Difficulty" />
+                    <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
                   <SelectContent className="bg-[#1C2541]">
                     <SelectItem value="easy">Easy</SelectItem>
@@ -254,26 +280,13 @@ const SetupStage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-[#93A5CF] mb-2">
-                  Week
-                </label>
-                <Input
-                  placeholder="Week 1, Week 2..."
-                  value={manualCard.week}
-                  onChange={(e) =>
-                    setManualCard({ ...manualCard, week: e.target.value })
-                  }
-                  className="bg-[#0A0E27] border-[#2563EB]/30"
-                />
-              </div>
-
-              {/* Add other fields as necessary */}
-            </div>
-
             <Button
               onClick={handleAddManualCard}
+              disabled={
+                !manualCard.front.trim() ||
+                !manualCard.back.trim() ||
+                !selectedProjectId
+              }
               className="w-full bg-[#2563EB] hover:bg-[#1E3A8A] h-12"
             >
               <Plus className="mr-2" size={16} />
@@ -283,19 +296,15 @@ const SetupStage = () => {
         </motion.div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="text-center mt-12"
-      >
+      <div className="flex justify-center mt-8">
         <Button
+          variant="secondary"
           onClick={handleContinueToOrganize}
-          className="bg-[#2563EB] hover:bg-[#1E3A8A] h-12 px-8 text-lg"
+          className="w-full max-w-xs h-12 text-lg"
         >
-          Continue to Organize Cards →
+          Continue to Organize
         </Button>
-      </motion.div>
+      </div>
     </FlashcardPageLayout>
   );
 };

@@ -1,74 +1,77 @@
 import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 export default function SignInForm() {
   const { signIn } = useAuthActions();
   const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
   const [error, setError] = useState<string | null>(null);
   return (
-    <div className="flex flex-col gap-8 w-96 mx-auto">
-      <p>Log in to see the numbers</p>
-      <form
-        className="flex flex-col gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(e.target as HTMLFormElement);
-          formData.set("flow", flow);
-          void signIn("password", formData).catch((error) => {
-            setError(error.message);
-          });
-        }}
-      >
-        <input
-          className="bg-light dark:bg-dark text-dark dark:text-light rounded-md p-2 border-2 border-slate-200 dark:border-slate-800"
-          type="email"
-          name="email"
-          placeholder="Email"
-        />
-        <input
-          className="bg-light dark:bg-dark text-dark dark:text-light rounded-md p-2 border-2 border-slate-200 dark:border-slate-800"
-          type="password"
-          name="password"
-          placeholder="Password"
-        />
-        <button
-          className="bg-dark dark:bg-light text-light dark:text-dark rounded-md p-2 cursor-pointer"
-          type="submit"
-        >
-          {flow === "signIn" ? "Sign in" : "Sign up"}
-        </button>
-        <div className="flex flex-row gap-2">
-          <span>
-            {flow === "signIn"
-              ? "Don't have an account?"
-              : "Already have an account?"}
-          </span>
-          <span
-            className="text-dark dark:text-light underline hover:no-underline cursor-pointer"
-            onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
+    <div className="grid place-content-center">
+      <Card className="flex flex-col gap-4">
+        <CardHeader>
+          <CardDescription>Log in to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target as HTMLFormElement);
+              formData.set("flow", flow);
+              void signIn("password", formData).catch((error) => {
+                setError(error.message);
+              });
+            }}
           >
-            {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
-          </span>
-        </div>
-        {error && (
-          <div className="bg-red-500/20 border-2 border-red-500/50 rounded-md p-2">
-            <p className="text-dark dark:text-light font-mono text-xs">
-              Error signing in: {error}
-            </p>
+            <Input type="email" name="email" placeholder="Email" />
+            <Input type="password" name="password" placeholder="Password" />
+            <Button type="submit" variant="secondary">
+              {flow === "signIn" ? "Sign in" : "Sign up"}
+            </Button>
+            <div className="flex flex-row gap-2">
+              <span>
+                {flow === "signIn"
+                  ? "Don't have an account?"
+                  : "Already have an account?"}
+              </span>
+              <span
+                className="text-dark dark:text-light underline hover:no-underline cursor-pointer"
+                onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
+              >
+                {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
+              </span>
+            </div>
+            {error && (
+              <Badge variant="destructive" className="p-2 text-xs font-mono">
+                Error signing in: {error}
+              </Badge>
+            )}
+          </form>
+          <div className="flex items-center justify-center my-3">
+            <hr className="my-4 grow" />
+            <span className="mx-4 text-muted-foreground">or</span>
+            <hr className="my-4 grow" />
           </div>
-        )}
-      </form>
-      <div className="flex items-center justify-center my-3">
-        <hr className="my-4 grow" />
-        <span className="mx-4 text-slate-400 ">or</span>
-        <hr className="my-4 grow" />
-      </div>
-      <button
-        className="bg-dark dark:bg-light text-light dark:text-dark rounded-md p-2 cursor-pointer"
-        onClick={() => void signIn("anonymous")}
-      >
-        Sign in anonymously
-      </button>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => void signIn("anonymous")}
+          >
+            Sign in anonymously
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }

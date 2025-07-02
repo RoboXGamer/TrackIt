@@ -6,7 +6,8 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import { ThemeProvider } from "../src/components/ui/theme-provider";
 import { AdminModeProvider } from "../src/components/providers/AdminModeProvider";
-
+import { ProjectProvider } from "./components/providers/ProjectProvider";
+import { Toaster } from "@/components/ui/sonner";
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
 
 export default function App() {
@@ -15,7 +16,10 @@ export default function App() {
       <ConvexAuthProvider client={convex}>
         <AdminModeProvider defaultMode="OFF" storageKey="vite-ui-admin-mode">
           <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-            <Outlet />
+            <ProjectProvider>
+              <Outlet />
+              <Toaster />
+            </ProjectProvider>
           </ThemeProvider>
         </AdminModeProvider>
       </ConvexAuthProvider>

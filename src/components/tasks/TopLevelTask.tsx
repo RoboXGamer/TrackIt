@@ -7,9 +7,10 @@ import {
 import {
   TaskActionButtons,
   useTaskExpansion,
-  calculateTaskPadding,
 } from "@/components/tasks";
 import { href, useNavigate } from "react-router";
+import { Card, CardContent } from "@/components/ui/card";
+import { useProject } from "@/components/providers/ProjectProvider";
 
 interface TopLevelTaskProps {
   task: Task;
@@ -26,21 +27,20 @@ interface TopLevelTaskProps {
 function TopLevelTask({ task, level }: TopLevelTaskProps) {
   const navigate = useNavigate();
   const { isExpanded, handleClick } = useTaskExpansion();
-  const paddingLeft = calculateTaskPadding(level, true);
+  const { selectedProjectId } = useProject();
 
   const handlePlayTask = (task: Task) => {
     navigate(href("/tasks/:id", { id: task._id }));
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto rounded-lg border-2">
-      <div
-        className="w-full px-4 py-3 hover:bg-gray-800/30 transition-all duration-200 cursor-pointer relative bg-slate-900"
-        style={{ marginLeft: `${paddingLeft}rem` }}
+    <Card className="py-0 gap-0">
+      <CardContent
+        className="hover:bg-slate-800/30 transition-all duration-200 cursor-pointer py-6"
         onClick={(e) => handleClick(e)}
       >
         <div className="flex items-center">
-          <div className="flex items-center gap-4 flex-1 pr-24">
+          <div className="flex items-center gap-4 flex-1">
             <TaskProgressCircle
               taskId={task._id}
               completionPercentage={task.completionPercentage ?? 0}
@@ -55,23 +55,21 @@ function TopLevelTask({ task, level }: TopLevelTaskProps) {
             </div>
           </div>
 
-          <div className="absolute right-4">
-            <TaskActionButtons
-              task={task}
-              level={level}
-              showDelete={false}
-              onPlay={handlePlayTask}
-            />
-          </div>
+          <TaskActionButtons
+            task={task}
+            level={level}
+            showDelete={false}
+            onPlay={handlePlayTask}
+          />
         </div>
-      </div>
-
+      </CardContent>
       <SubTaskContainer
         parentTask={task}
         level={level}
         isExpanded={isExpanded}
+        projectId={selectedProjectId}
       />
-    </div>
+    </Card>
   );
 }
 

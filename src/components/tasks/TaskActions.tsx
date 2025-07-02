@@ -1,7 +1,6 @@
 import { useAdminMode } from "@/components/providers/AdminModeProvider";
 import { Task } from "../types/Task";
 import { TaskEditDialog, TaskDeleteDialog } from "@/components/tasks";
-import { Dialog } from "@/components/ui/dialog";
 
 interface TaskActionsProps {
   task: Task;
@@ -22,9 +21,7 @@ function TaskActions({ task, showDelete }: TaskActionsProps) {
 
   return (
     <div className="flex gap-1">
-      <Dialog>
-        <TaskEditDialog task={task} />
-      </Dialog>
+      <TaskEditDialog task={task} />
 
       {showDelete && <TaskDeleteDialog task={task} />}
     </div>

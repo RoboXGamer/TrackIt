@@ -1,5 +1,7 @@
 import TaskRouter from "./TaskRouter";
 import { Task } from "../types/Task";
+import { Id } from "../../../convex/_generated/dataModel";
+import { useProject } from "@/components/providers/ProjectProvider";
 
 interface TaskListProps {
   tasks: Task[] | undefined;
@@ -7,10 +9,13 @@ interface TaskListProps {
 }
 
 function TaskList({ tasks, level }: TaskListProps) {
+  const { selectedProjectId } = useProject();
+
+  if (!tasks) return null;
   return (
-    <div className="w-full space-y-2">
+    <div className="grid gap-2">
       {tasks?.map((task) => (
-        <TaskRouter key={task._id} task={task} level={level} />
+        <TaskRouter key={task._id} task={task} level={level} projectId={selectedProjectId} />
       ))}
     </div>
   );

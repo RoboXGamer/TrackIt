@@ -23,8 +23,8 @@ export const createFlashcard = mutation({
     cardType: v.optional(v.string()),
     source: v.optional(v.string()),
     subject: v.optional(v.string()),
-    week: v.optional(v.string()),
     difficulty: v.optional(v.union(v.literal("easy"), v.literal("medium"), v.literal("hard"))),
+    projectId: v.id("projects"),
   },
   handler: async (ctx, args): Promise<void> => {
     const userId = await getAuthUserId(ctx);
@@ -34,34 +34,45 @@ export const createFlashcard = mutation({
 
     await ctx.db.insert("flashcards", {
       userId: userId,
+      projectId: args.projectId,
       front: args.front,
       back: args.back,
       cardType: args.cardType,
       source: args.source,
       lastReviewed: undefined,
       nextReview: undefined,
-      easeFactor: 2.5,
-      interval: 0,
-      repetitions: 0,
-      correctCount: 0,
-      incorrectCount: 0,
       isStarred: false,
       subject: args.subject,
-      week: args.week,
       difficulty: args.difficulty,
     });
   },
 });
 
 export const getFlashcards = query({
-  handler: async (ctx): Promise<Doc<"flashcards">[]> => {
+  args: {
+    projectId: v.optional(v.id("projects")),
+  },
+  handler: async (ctx, args): Promise<Doc<"flashcards">[]> => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       return [];
     }
-    return await ctx.db
+    // Filter out cards that are not yet due for review
+    const now = Date.now();
+    let flashcardsQuery = ctx.db
       .query("flashcards")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.eq(q.field("userId"), userId));
+
+    if (args.projectId) {
+      flashcardsQuery = flashcardsQuery.filter((q) =>
+        q.eq(q.field("projectId"), args.projectId)
+      );
+    }
+
+    return await flashcardsQuery
+      .filter((q) =>
+        q.or(q.eq(q.field("nextReview"), undefined), q.lte(q.field("nextReview"), now))
+      )
       .collect();
   },
 });
@@ -92,15 +103,10 @@ export const updateFlashcard = mutation({
     source: v.optional(v.string()),
     lastReviewed: v.optional(v.number()),
     nextReview: v.optional(v.number()),
-    easeFactor: v.optional(v.number()),
-    interval: v.optional(v.number()),
-    repetitions: v.optional(v.number()),
-    correctCount: v.optional(v.number()),
-    incorrectCount: v.optional(v.number()),
     isStarred: v.optional(v.boolean()),
     subject: v.optional(v.string()),
-    week: v.optional(v.string()),
     difficulty: v.optional(v.union(v.literal("easy"), v.literal("medium"), v.literal("hard"))),
+    projectId: v.id("projects"),
   },
   handler: async (ctx, args): Promise<void> => {
     const userId = await getAuthUserId(ctx);
@@ -263,21 +269,37 @@ export const getMyUserMetadata = query({
 export const setFlashcardNextReviewTime = mutation({
   args: {
     flashcardId: v.id("flashcards"),
-    nextReview: v.number(),
+    difficulty: v.union(v.literal("easy"), v.literal("medium"), v.literal("hard")),
   },
-  handler: async (ctx, args): Promise<void> => {
+  handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const existingFlashcard = await ctx.db.get(args.flashcardId);
-    if (!existingFlashcard || existingFlashcard.userId !== userId) {
-      throw new Error("Not authorized to update this flashcard");
+    const flashcard = await ctx.db.get(args.flashcardId);
+    if (!flashcard || flashcard.userId !== userId) {
+      throw new Error("Flashcard not found or unauthorized");
+    }
+
+    const now = Date.now();
+    let nextReviewTime = now;
+
+    switch (args.difficulty) {
+      case "hard":
+        nextReviewTime += 1 * 24 * 60 * 60 * 1000; // 1 day
+        break;
+      case "medium":
+        nextReviewTime += 2 * 24 * 60 * 60 * 1000; // 2 days
+        break;
+      case "easy":
+        nextReviewTime += 3 * 24 * 60 * 60 * 1000; // 3 days
+        break;
     }
 
     await ctx.db.patch(args.flashcardId, {
-      nextReview: args.nextReview,
+      lastReviewed: now,
+      nextReview: nextReviewTime,
     });
   },
 }); 

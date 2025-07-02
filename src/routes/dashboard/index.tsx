@@ -5,7 +5,7 @@ export default function index() {
   return (
     <>
       <Header />
-      <main className="p-8 flex flex-col gap-16">
+      <main className="grid">
         <Authenticated>
           <Outlet />
         </Authenticated>
@@ -13,8 +13,8 @@ export default function index() {
           <SignInForm />
         </Unauthenticated>
       </main>
-      <BottomNavbar />
       <Footer />
+      <BottomNavbar />
     </>
   );
 }

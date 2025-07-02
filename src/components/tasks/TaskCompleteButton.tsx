@@ -71,13 +71,13 @@ function TaskCompleteButton({
     <button
       onClick={handleComplete}
       disabled={!canClick}
-      className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors disabled:cursor-not-allowed ${buttonStyles} ${className}`}
+      className={`size-7 rounded-full flex items-center justify-center transition-colors disabled:cursor-not-allowed ${buttonStyles} ${className}`}
       title={getTitle()}
     >
       {isLoading ? (
-        <Loader2 className="w-4 h-4 animate-spin" />
+        <Loader2 className="size-3 animate-spin" />
       ) : (
-        <>{isCompleted ? <Check className="w-4 h-4" /> : null}</>
+        <>{isCompleted ? <Check className="size-3" /> : null}</>
       )}
     </button>
   );

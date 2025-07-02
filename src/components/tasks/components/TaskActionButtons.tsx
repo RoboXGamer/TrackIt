@@ -1,5 +1,9 @@
 import { Task } from "../../types/Task";
-import { TaskActions, TaskCompleteButton, TaskPlayButton } from "@/components/tasks";
+import {
+  TaskActions,
+  TaskCompleteButton,
+  TaskPlayButton,
+} from "@/components/tasks";
 
 interface TaskActionButtonsProps {
   task: Task;
@@ -21,7 +25,7 @@ export function TaskActionButtons({
   className = "",
 }: TaskActionButtonsProps) {
   return (
-    <div className={`flex items-end gap-2 ${className}`}>
+    <div className={`grid grid-flow-col place-items-center gap-2 ${className}`}>
       <TaskActions task={task} showDelete={showDelete} />
       <TaskCompleteButton task={task} level={level} />
       <TaskPlayButton task={task} onPlay={onPlay} />

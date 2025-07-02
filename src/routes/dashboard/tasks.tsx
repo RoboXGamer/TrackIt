@@ -1,4 +1,6 @@
 import { Route } from "./+types/tasks";
+import { Tasks } from "@/components";
+import { useProject } from "@/components/providers/ProjectProvider";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -7,12 +9,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-import { Tasks } from "@/components";
-
 export default function Dashboard() {
-  return (
-    <>
-      <Tasks />
-    </>
-  );
+  return <Tasks />;
 }

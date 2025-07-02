@@ -17,9 +17,10 @@ import { TASK_ERRORS, getTaskLabel } from "@/components/tasks";
 
 interface CreateTaskButtonProps {
   parentId?: Id<"tasks">;
+  projectId: Id<"projects">;
 }
 
-function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
+function CreateTaskButton({ parentId, projectId }: CreateTaskButtonProps) {
   const { mode } = useAdminMode();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -40,6 +41,11 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
       return;
     }
 
+    if (!projectId) {
+      setError("Project ID is required to create a task.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
@@ -48,6 +54,7 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
         title: title.trim(),
         description: description.trim() || undefined,
         parentId,
+        projectId,
       });
 
       // Reset form and close dialog
@@ -130,7 +137,7 @@ function CreateTaskButton({ parentId }: CreateTaskButtonProps) {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading || !title.trim()}>
+            <Button type="submit" disabled={isLoading || !title.trim() || !projectId}>
               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Create Task
             </Button>

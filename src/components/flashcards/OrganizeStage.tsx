@@ -1,23 +1,25 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { BookOpen, Calendar, Shuffle, Star, Trash2 } from "lucide-react";
+import { BookOpen, Shuffle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Doc } from "../../../convex/_generated/dataModel";
+import { Doc, Id } from "../../../convex/_generated/dataModel";
 import FlashcardPageLayout from "./FlashcardPageLayout";
-import FlashcardDisplay from "./FlashcardDisplay";
+import OrganizeCard from "./OrganizeCard";
+import { useProject } from "@/components/providers/ProjectProvider";
 
 type Flashcard = Doc<"flashcards">;
 
 const OrganizeStage = () => {
   const navigate = useNavigate();
-  const cards = useQuery(api.flashcards.getFlashcards);
+  const { selectedProjectId } = useProject();
+  const cards = useQuery(api.flashcards.getFlashcards, selectedProjectId ? { projectId: selectedProjectId } : "skip");
   const updateFlashcard = useMutation(api.flashcards.updateFlashcard);
-  const deleteFlashcard = useMutation(api.flashcards.deleteFlashcard);
-  const [viewMode, setViewMode] = useState<"subject" | "week" | "all">("all");
+  const deleteCard = useMutation(api.flashcards.deleteFlashcard);
+  const [viewMode, setViewMode] = useState<"subject" | "all">("all");
   const [selectedCards, setSelectedCards] = useState<string[]>([]);
 
   const groupedCards = (): Record<string, Flashcard[]> => {
@@ -29,16 +31,6 @@ const OrganizeStage = () => {
           const subject = card.subject || "Uncategorized";
           if (!acc[subject]) acc[subject] = [];
           acc[subject].push(card);
-          return acc;
-        },
-        {} as Record<string, Flashcard[]>,
-      );
-    } else if (viewMode === "week") {
-      return cards.reduce(
-        (acc, card) => {
-          const week = card.week || "No Week";
-          if (!acc[week]) acc[week] = [];
-          acc[week].push(card);
           return acc;
         },
         {} as Record<string, Flashcard[]>,
@@ -60,7 +52,10 @@ const OrganizeStage = () => {
     );
   };
 
-  const handleToggleStar = async (card: Flashcard) => {
+  const toggleStar = async (cardId: Id<"flashcards">) => {
+    const card = cards?.find((c) => c._id === cardId);
+    if (!card || !selectedProjectId) return;
+
     await updateFlashcard({
       flashcardId: card._id,
       isStarred: !card.isStarred,
@@ -70,19 +65,14 @@ const OrganizeStage = () => {
       source: card.source,
       lastReviewed: card.lastReviewed,
       nextReview: card.nextReview,
-      easeFactor: card.easeFactor,
-      interval: card.interval,
-      repetitions: card.repetitions,
-      correctCount: card.correctCount,
-      incorrectCount: card.incorrectCount,
       subject: card.subject,
-      week: card.week,
       difficulty: card.difficulty,
+      projectId: selectedProjectId,
     });
   };
 
   const handleDeleteCard = async (cardId: Doc<"flashcards">["_id"]) => {
-    await deleteFlashcard({ flashcardId: cardId });
+    await deleteCard({ flashcardId: cardId });
   };
 
   const grouped = groupedCards();
@@ -95,13 +85,21 @@ const OrganizeStage = () => {
     );
   }
 
+  if (!selectedProjectId) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-[#93A5CF]">Please select a project to view flashcards.</p>
+      </div>
+    );
+  }
+
   return (
     <FlashcardPageLayout
       title="Organize Your Cards"
       description="Review and organize your flashcards before practice"
       maxWidthClass="max-w-6xl"
       headerChildren={
-        <div className="flex justify-center gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mb-8">
           <Button
             variant={viewMode === "all" ? "default" : "outline"}
             onClick={() => setViewMode("all")}
@@ -109,7 +107,7 @@ const OrganizeStage = () => {
               viewMode === "all" ? "bg-[#2563EB]" : "border-[#2563EB]/30"
             }
           >
-            <BookOpen className="mr-2" size={16} />
+            <Shuffle className="mr-2" size={16} />
             All Cards
           </Button>
           <Button
@@ -121,16 +119,6 @@ const OrganizeStage = () => {
           >
             <BookOpen className="mr-2" size={16} />
             By Subject
-          </Button>
-          <Button
-            variant={viewMode === "week" ? "default" : "outline"}
-            onClick={() => setViewMode("week")}
-            className={
-              viewMode === "week" ? "bg-[#2563EB]" : "border-[#2563EB]/30"
-            }
-          >
-            <Calendar className="mr-2" size={16} />
-            By Week
           </Button>
         </div>
       }
@@ -148,7 +136,6 @@ const OrganizeStage = () => {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-2xl font-semibold flex items-center gap-2">
                   {viewMode === "subject" && <BookOpen size={24} />}
-                  {viewMode === "week" && <Calendar size={24} />}
                   {viewMode === "all" && <Shuffle size={24} />}
                   {groupName}
                   <Badge
@@ -160,13 +147,16 @@ const OrganizeStage = () => {
                 </h3>
               </div>
 
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {groupCards.map((card) => (
-                  <FlashcardDisplay
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {groupCards.map((card, cardIndex) => (
+                  <OrganizeCard
                     key={card._id}
                     card={card}
-                    showAnswer={true}
-                    isPracticeMode={false}
+                    groupIndex={groupIndex}
+                    cardIndex={cardIndex}
+                    toggleStar={toggleStar}
+                    handleDeleteCard={handleDeleteCard}
+                    handleCardSelect={handleCardSelect}
                   />
                 ))}
               </div>
@@ -186,13 +176,6 @@ const OrganizeStage = () => {
             className="bg-[#2563EB] hover:bg-[#1E3A8A] h-12 px-8 text-lg"
           >
             Start Practice Session →
-          </Button>
-          <Button
-            onClick={() => navigate("/dashboard/flashcards/review")}
-            variant="outline"
-            className="border-[#2563EB]/30 text-gray-950 h-12 px-8 text-lg"
-          >
-            Set Review Timer
           </Button>
           <Button
             onClick={() => navigate("/dashboard/flashcards")}
@@ -216,7 +199,7 @@ const OrganizeStage = () => {
             Go back to create some flashcards first
           </p>
           <Button
-            onClick={() => navigate("/dashboard/flashcards/setup")}
+            onClick={() => navigate("/dashboard/flashcards")}
             className="bg-[#2563EB] hover:bg-[#1E3A8A] h-12 px-8 text-lg flex items-center gap-2"
           >
             <BookOpen size={20} /> Add More Cards

@@ -8,7 +8,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Doc } from "../../../convex/_generated/dataModel";
 import FlashcardPageLayout from "./FlashcardPageLayout";
-import FlashcardDisplay, { FlashcardDisplayRef } from "./FlashcardDisplay";
+import PracticeCard, { PracticeCardRef } from "./PracticeCard";
 
 type Flashcard = Doc<"flashcards">;
 
@@ -27,13 +27,13 @@ const PracticeStage = () => {
     null,
   );
   const [sessionComplete, setSessionComplete] = useState(false);
-  const flashcardDisplayRef = useRef<FlashcardDisplayRef>(null);
+  const flashcardDisplayRef = useRef<PracticeCardRef>(null);
 
   // Derived state for study session based on fetchedCards
   const studySession = {
     total: fetchedCards ? fetchedCards.length : 0,
-    correct: fetchedCards ? fetchedCards.reduce((sum, card) => sum + (card.correctCount || 0), 0) : 0,
-    incorrect: fetchedCards ? fetchedCards.reduce((sum, card) => sum + (card.incorrectCount || 0), 0) : 0,
+    correct: 0, // No longer tracked directly from flashcard document
+    incorrect: 0, // No longer tracked directly from flashcard document
   };
 
   useEffect(() => {
@@ -50,7 +50,8 @@ const PracticeStage = () => {
   }, [fetchedCards, cards.length]);
 
   const currentCard = cards[currentCardIndex];
-  const progress = cards.length > 0 ? (studySession.total / cards.length) * 100 : 0;
+  const progress =
+    cards.length > 0 ? (currentCardIndex / cards.length) * 100 : 0;
 
   useEffect(() => {
     if (sessionComplete) {
@@ -77,28 +78,10 @@ const PracticeStage = () => {
         currentLevel: userMetadata?.currentLevel || 0,
       });
 
-      // Use Promise.all to wait for all mutations to complete
-      Promise.all(cards.map(async (card) => {
-        const newNextReviewTime = Date.now() + 24 * 60 * 60 * 1000; // 1 day from now
-        return setFlashcardNextReviewTime({
-          flashcardId: card._id,
-          nextReview: newNextReviewTime,
-        });
-      })).then(() => {
-        console.log("All flashcard review times updated.");
-      }).catch(error => {
-        console.error("Error updating flashcard review times:", error);
-      });
-
+      // No longer need to update individual flashcard review times here
       console.log("Session complete, streak and XP update initiated.");
     }
-  }, [
-    sessionComplete,
-    userMetadata,
-    updateUserMetadata,
-    setFlashcardNextReviewTime,
-    cards,
-  ]);
+  }, [sessionComplete, userMetadata, updateUserMetadata, cards]);
 
   const nextCard = () => {
     if (currentCardIndex + 1 < cards.length) {
@@ -109,60 +92,35 @@ const PracticeStage = () => {
     }
   };
 
-  const handleSwipe = async (direction: "left" | "right") => {
+  const handleReview = async (difficulty: "easy" | "medium" | "hard") => {
     if (!currentCard) return;
-    setSwipeDirection(direction);
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    if (direction === "right") {
-      await flashcardDisplayRef.current?.markCorrect();
-    } else {
-      await flashcardDisplayRef.current?.markIncorrect();
-    }
-
-    if (currentCardIndex + 1 < cards.length) {
-      nextCard();
-    } else {
-      // This was the last card in the session
-      setSessionComplete(true);
-    }
-    setSwipeDirection(null);
+    await setFlashcardNextReviewTime({
+      flashcardId: currentCard._id,
+      difficulty,
+    });
+    nextCard();
   };
 
   const handleDragEnd = (event: any, info: PanInfo) => {
     const threshold = 100;
     if (Math.abs(info.offset.x) > threshold) {
-      handleSwipe(info.offset.x > 0 ? "right" : "left");
+      // Swiping behavior remains but now categorizes as hard
+      handleReview(info.offset.x > 0 ? "easy" : "hard");
     }
   };
-
-  const handleKeyPress = useCallback((event: KeyboardEvent) => {
-    switch (event.key) {
-      case "ArrowLeft":
-        handleSwipe("left");
-        break;
-      case "ArrowRight":
-        handleSwipe("right");
-        break;
-      case " ":
-        event.preventDefault();
-        flashcardDisplayRef.current?.toggleAnswer();
-        break;
-    }
-  }, [handleSwipe]);
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyPress);
-    return () => window.removeEventListener("keydown", handleKeyPress);
-  }, [handleKeyPress]);
 
   if (cards.length === 0) {
     return (
       <div className="text-center py-12">
-        <p className="text-[#93A5CF]">No cards available for practice. Please create some cards in the setup stage.</p>
-        <Button onClick={() => navigate("/dashboard/flashcards/setup")}
-          className="mt-4 flex items-center gap-2">
+        <p className="text-[#93A5CF]">
+          No cards available for practice. Please create some cards in the setup
+          stage.
+        </p>
+        <Button
+          onClick={() => navigate("/dashboard/flashcards")}
+          className="mt-4 flex items-center gap-2"
+        >
           <ChevronLeft size={20} /> Add More Cards
         </Button>
       </div>
@@ -200,19 +158,22 @@ const PracticeStage = () => {
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-[#0A0E27] p-4 rounded-xl">
               <div className="text-2xl font-bold text-green-400">
-                {studySession.correct}
+                {/* studySession.correct */ "N/A"}
               </div>
               <div className="text-sm text-[#93A5CF]">Correct</div>
             </div>
             <div className="bg-[#0A0E27] p-4 rounded-xl">
               <div className="text-2xl font-bold text-red-400">
-                {studySession.incorrect}
+                {/* studySession.incorrect */ "N/A"}
               </div>
               <div className="text-sm text-[#93A5CF]">Incorrect</div>
             </div>
             <div className="bg-[#0A0E27] p-4 rounded-xl">
               <div className="text-2xl font-bold text-[#2563EB]">
-                {Math.round((studySession.correct / studySession.total) * 100)}%
+                {
+                  /* Math.round((studySession.correct / studySession.total) * 100) */ "N/A"
+                }
+                %
               </div>
               <div className="text-sm text-[#93A5CF]">Accuracy</div>
             </div>
@@ -231,10 +192,10 @@ const PracticeStage = () => {
               Review Cards
             </Button>
             <Button
-              onClick={() => navigate("/dashboard/flashcards/review")}
-              className="bg-[#2563EB] hover:bg-[#1E3A8A]"
+              onClick={() => navigate("/dashboard/flashcards")}
+              className="flex items-center gap-2"
             >
-              Set Review Timer
+              Add More Cards
             </Button>
           </div>
         </motion.div>
@@ -242,21 +203,13 @@ const PracticeStage = () => {
     );
   }
 
-  if (!currentCard) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-[#93A5CF]">Loading cards...</p>
-      </div>
-    );
-  }
-
   return (
     <FlashcardPageLayout
       title="Practice Session"
-      description="Swipe left for incorrect, right for correct. Tap to reveal answer."
+      description="Swipe left/right to categorize. Use buttons below."
       maxWidthClass="max-w-4xl"
       paddingYClass="py-8"
-      headerChildren={(
+      headerChildren={
         <div className="flex items-center justify-between mt-8">
           <div className="flex items-center gap-4">
             <Button
@@ -278,78 +231,85 @@ const PracticeStage = () => {
           </div>
 
           <div className="flex gap-4 text-sm">
-            <div className="text-green-400">✓ {studySession.correct}</div>
-            <div className="text-red-400">✗ {studySession.incorrect}</div>
+            {/* No longer showing correct/incorrect counts here */}
           </div>
         </div>
-      )}
+      }
     >
-      <div className="relative w-full max-w-lg mx-auto h-[400px]">
+      <div className="relative w-full max-w-xl mx-auto h-full">
         <AnimatePresence initial={false}>
-          {currentCard && (
-            <motion.div
-              key={currentCard._id}
-              initial={{
-                opacity: 0,
-                x: swipeDirection === "left" ? 300 : swipeDirection === "right" ? -300 : 0,
-                scale: 0.8,
-              }}
-              animate={{
-                opacity: 1,
-                x: 0,
-                scale: 1,
-                transition: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                },
-              }}
-              exit={{
-                opacity: 0,
-                x: swipeDirection === "left" ? -300 : 300,
-                scale: 0.8,
-                transition: {
-                  type: "spring",
-                  stiffness: 300,
-                  damping: 30,
-                },
-              }}
-              drag="x"
-              onDragEnd={handleDragEnd}
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.5}
-              className="absolute w-full h-full"
-            >
-              <FlashcardDisplay
-                ref={flashcardDisplayRef}
+          <motion.div
+            key={currentCard._id}
+            initial={{
+              x:
+                swipeDirection === "left"
+                  ? 300
+                  : swipeDirection === "right"
+                    ? -300
+                    : 0,
+              opacity: 0,
+              rotate:
+                swipeDirection === "left"
+                  ? 10
+                  : swipeDirection === "right"
+                    ? -10
+                    : 0,
+            }}
+            animate={{ x: 0, opacity: 1, rotate: 0 }}
+            exit={{
+              x:
+                swipeDirection === "left"
+                  ? -300
+                  : swipeDirection === "right"
+                    ? 300
+                    : 0,
+              opacity: 0,
+              rotate:
+                swipeDirection === "left"
+                  ? -10
+                  : swipeDirection === "right"
+                    ? 10
+                    : 0,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            drag="x"
+            onDragEnd={handleDragEnd}
+            dragConstraints={{ left: 0, right: 0 }}
+            className="absolute top-0 left-0 w-full h-full"
+          >
+            {currentCard && (
+              <PracticeCard
+                key={currentCard._id}
                 card={currentCard}
-                isPracticeMode={true}
-                onMarkCorrect={nextCard}
-                onMarkIncorrect={nextCard}
+                ref={flashcardDisplayRef}
               />
-            </motion.div>
-          )}
+            )}
+          </motion.div>
         </AnimatePresence>
       </div>
 
-      <div className="text-center text-sm text-[#93A5CF] mt-4">
-        <p className="mb-1">
-          Swipe left (<X size={14} className="inline-block align-middle" />) if you didn't know it • Space to show answer • Swipe right (<Check size={14} className="inline-block align-middle" />) if you got it right
-        </p>
-        <p>Keyboard: ← → for swipe, Space for answer</p>
-      </div>
-
-      <div className="flex justify-between items-center mt-8 px-6">
+      <div className="flex justify-center gap-4 mt-8 px-6">
         <Button
-          variant="outline"
-          onClick={() => navigate("/dashboard/flashcards")}
-          className="text-[#93A5CF] border-[#2563EB]/30 flex items-center gap-2"
+          size="lg"
+          className="bg-green-600 hover:bg-green-700 text-white rounded-md flex-1 py-4 text-xl font-bold"
+          onClick={() => handleReview("easy")}
         >
-          <ChevronLeft size={20} /> Exit
+          Easy
         </Button>
-
-        <Progress value={progress} className="w-1/2 h-2 rounded-full" />
-
+        <Button
+          size="lg"
+          className="bg-yellow-600 hover:bg-yellow-700 text-white rounded-md flex-1 py-4 text-xl font-bold"
+          onClick={() => handleReview("medium")}
+        >
+          Medium
+        </Button>
+        <Button
+          size="lg"
+          className="bg-red-600 hover:bg-red-700 text-white rounded-md flex-1 py-4 text-xl font-bold"
+          onClick={() => handleReview("hard")}
+        >
+          Hard
+        </Button>
       </div>
     </FlashcardPageLayout>
   );

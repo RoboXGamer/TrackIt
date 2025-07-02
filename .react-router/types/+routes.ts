@@ -28,6 +28,45 @@ type Pages = {
   "/dashboard/flashcards/review": {
     params: {};
   };
+  "/dashboard/battle": {
+    params: {};
+  };
+  "/dashboard/war": {
+    params: {};
+  };
+  "/dashboard/war/config": {
+    params: {};
+  };
+  "/dashboard/war/battle": {
+    params: {};
+  };
+  "/dashboard/war/report-card": {
+    params: {};
+  };
+  "/dashboard/war/dashboard": {
+    params: {};
+  };
+  "/dashboard/attack": {
+    params: {};
+  };
+  "/dashboard/attack/mental": {
+    params: {};
+  };
+  "/dashboard/attack/plan": {
+    params: {};
+  };
+  "/dashboard/attack/battle": {
+    params: {};
+  };
+  "/dashboard/attack/reflect": {
+    params: {};
+  };
+  "/dashboard/attack/analytics": {
+    params: {};
+  };
+  "/dashboard/attack/streaks": {
+    params: {};
+  };
   "/tasks/:id": {
     params: {
       "id": string;
@@ -38,7 +77,7 @@ type Pages = {
 type RouteFiles = {
   "root.tsx": {
     id: "root";
-    page: "/" | "/dashboard" | "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review" | "/tasks/:id";
+    page: "/" | "/dashboard" | "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review" | "/dashboard/battle" | "/dashboard/war" | "/dashboard/war/config" | "/dashboard/war/battle" | "/dashboard/war/report-card" | "/dashboard/war/dashboard" | "/dashboard/attack" | "/dashboard/attack/mental" | "/dashboard/attack/plan" | "/dashboard/attack/battle" | "/dashboard/attack/reflect" | "/dashboard/attack/analytics" | "/dashboard/attack/streaks" | "/tasks/:id";
   };
   "routes/home.tsx": {
     id: "routes/home";
@@ -46,7 +85,7 @@ type RouteFiles = {
   };
   "routes/dashboard/index.tsx": {
     id: "routes/dashboard/index";
-    page: "/dashboard" | "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review";
+    page: "/dashboard" | "/dashboard/flashcards" | "/dashboard/flashcards/organize" | "/dashboard/flashcards/practice" | "/dashboard/flashcards/review" | "/dashboard/battle" | "/dashboard/war" | "/dashboard/war/config" | "/dashboard/war/battle" | "/dashboard/war/report-card" | "/dashboard/war/dashboard" | "/dashboard/attack" | "/dashboard/attack/mental" | "/dashboard/attack/plan" | "/dashboard/attack/battle" | "/dashboard/attack/reflect" | "/dashboard/attack/analytics" | "/dashboard/attack/streaks";
   };
   "routes/dashboard/tasks.tsx": {
     id: "routes/dashboard/tasks";
@@ -71,6 +110,66 @@ type RouteFiles = {
   "routes/dashboard/flashcards/review.tsx": {
     id: "routes/dashboard/flashcards/review";
     page: "/dashboard/flashcards/review";
+  };
+  "routes/dashboard/battlefield/index.tsx": {
+    id: "routes/dashboard/battlefield/index";
+    page: "/dashboard/battle";
+  };
+  "routes/dashboard/battlefield/war/index.tsx": {
+    id: "routes/dashboard/battlefield/war/index";
+    page: "/dashboard/war" | "/dashboard/war/config" | "/dashboard/war/battle" | "/dashboard/war/report-card" | "/dashboard/war/dashboard";
+  };
+  "components/battlefield/war/WarMode.tsx": {
+    id: "components/battlefield/war/WarMode";
+    page: "/dashboard/war";
+  };
+  "routes/dashboard/battlefield/war/config.tsx": {
+    id: "routes/dashboard/battlefield/war/config";
+    page: "/dashboard/war/config";
+  };
+  "components/battlefield/war/BeginBattle.tsx": {
+    id: "components/battlefield/war/BeginBattle";
+    page: "/dashboard/war/battle";
+  };
+  "components/battlefield/war/pages/PTSReportCard.tsx": {
+    id: "components/battlefield/war/pages/PTSReportCard";
+    page: "/dashboard/war/report-card";
+  };
+  "components/battlefield/war/pages/WarReportIndex.tsx": {
+    id: "components/battlefield/war/pages/WarReportIndex";
+    page: "/dashboard/war/dashboard";
+  };
+  "routes/dashboard/battlefield/attack/index.tsx": {
+    id: "routes/dashboard/battlefield/attack/index";
+    page: "/dashboard/attack" | "/dashboard/attack/mental" | "/dashboard/attack/plan" | "/dashboard/attack/battle" | "/dashboard/attack/reflect" | "/dashboard/attack/analytics" | "/dashboard/attack/streaks";
+  };
+  "components/battlefield/attack/AttackWelcome.tsx": {
+    id: "components/battlefield/attack/AttackWelcome";
+    page: "/dashboard/attack";
+  };
+  "components/battlefield/attack/MentalTimer.tsx": {
+    id: "components/battlefield/attack/MentalTimer";
+    page: "/dashboard/attack/mental";
+  };
+  "components/battlefield/attack/AttackPlan.tsx": {
+    id: "components/battlefield/attack/AttackPlan";
+    page: "/dashboard/attack/plan";
+  };
+  "components/battlefield/attack/BeastBattle.tsx": {
+    id: "components/battlefield/attack/BeastBattle";
+    page: "/dashboard/attack/battle";
+  };
+  "components/battlefield/attack/BattleReflection.tsx": {
+    id: "components/battlefield/attack/BattleReflection";
+    page: "/dashboard/attack/reflect";
+  };
+  "components/battlefield/attack/AnalyticsDashboard.tsx": {
+    id: "components/battlefield/attack/AnalyticsDashboard";
+    page: "/dashboard/attack/analytics";
+  };
+  "components/battlefield/attack/StreakTracker.tsx": {
+    id: "components/battlefield/attack/StreakTracker";
+    page: "/dashboard/attack/streaks";
   };
   "routes/taskDetails.tsx": {
     id: "routes/taskDetails";

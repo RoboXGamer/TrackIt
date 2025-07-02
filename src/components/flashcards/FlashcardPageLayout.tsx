@@ -14,12 +14,12 @@ const FlashcardPageLayout: React.FC<FlashcardPageLayoutProps> = ({
   title,
   description,
   children,
-  maxWidthClass = "max-w-4xl",
-  paddingYClass = "py-12",
+  maxWidthClass,
+  paddingYClass = "",
   headerChildren,
 }) => {
   return (
-    <div className={`${maxWidthClass} mx-auto px-6 ${paddingYClass}`}>
+    <div className={`flex flex-col flex-1 ${maxWidthClass} mx-auto px-6 ${paddingYClass}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,9 +29,11 @@ const FlashcardPageLayout: React.FC<FlashcardPageLayoutProps> = ({
         <p className="text-[#93A5CF] text-lg">{description}</p>
         {headerChildren && <div className="mt-8">{headerChildren}</div>}
       </motion.div>
-      {children}
+      <div className="flex-1 min-h-0">
+        {children}
+      </div>
     </div>
   );
 };
 
-export default FlashcardPageLayout; 
+export default FlashcardPageLayout;

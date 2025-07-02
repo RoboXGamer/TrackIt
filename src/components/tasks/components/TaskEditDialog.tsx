@@ -6,7 +6,7 @@ import { TaskFormDialog } from "./TaskFormDialog";
 import { useTaskForm } from "../hooks/useTaskForm";
 import { TASK_LABELS, TASK_ERRORS } from "../constants/taskConstants";
 import { Button } from "@/components/ui/button";
-import { DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Edit } from "lucide-react";
 
 interface TaskEditDialogProps {
@@ -56,7 +56,7 @@ export function TaskEditDialog({ task }: TaskEditDialogProps) {
   };
 
   return (
-    <>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="icon" className="h-6 w-6 p-1">
           <Edit className="w-3 h-3" />
@@ -76,6 +76,6 @@ export function TaskEditDialog({ task }: TaskEditDialogProps) {
         dialogTitle={TASK_LABELS.EDIT_TASK}
         submitButtonText="Save Changes"
       />
-    </>
+    </Dialog>
   );
 }

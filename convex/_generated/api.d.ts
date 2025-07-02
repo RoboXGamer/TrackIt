@@ -14,8 +14,11 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as auth from "../auth.js";
+import type * as battle from "../battle.js";
 import type * as flashcards from "../flashcards.js";
 import type * as http from "../http.js";
+import type * as projectTemplates from "../projectTemplates.js";
+import type * as projects from "../projects.js";
 import type * as tasks from "../tasks.js";
 
 /**
@@ -28,8 +31,11 @@ import type * as tasks from "../tasks.js";
  */
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
+  battle: typeof battle;
   flashcards: typeof flashcards;
   http: typeof http;
+  projectTemplates: typeof projectTemplates;
+  projects: typeof projects;
   tasks: typeof tasks;
 }>;
 export declare const api: FilterApi<

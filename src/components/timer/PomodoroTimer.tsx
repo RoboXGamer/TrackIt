@@ -170,10 +170,11 @@ const SegmentedCircularProgress: React.FC<{
 }) => {
   const center = size / 2;
   const radius = center - strokeWidth;
-  const svgHeight = center + strokeWidth * 2; // Height for semi-circle
+  const svgHeight = size; // Full height for proper positioning
 
   // Semi-circle from 9 o'clock (left) to 3 o'clock (right) - 180 degrees
-  const startAngle = 180; // 9 o'clock
+  // Starting at 9 o'clock and going clockwise through bottom to create a horseshoe shape
+  const startAngle = 180; // 9 o'clock (left)
   const totalArc = 180;
 
   // Calculate gaps and segment sizes
@@ -205,9 +206,9 @@ const SegmentedCircularProgress: React.FC<{
   const segments = [];
 
   for (let i = 0; i < totalSessions; i++) {
-    // Calculate angles for this segment (going from left to right)
-    const segmentStart = startAngle - i * (segmentAngle + gapAngle);
-    const segmentEnd = segmentStart - segmentAngle;
+    // Calculate angles for this segment (going clockwise from 9 o'clock through bottom)
+    const segmentStart = startAngle + i * (segmentAngle + gapAngle);
+    const segmentEnd = segmentStart + segmentAngle;
 
     // Determine fill percentage
     let fillPercent = 0;
@@ -228,7 +229,7 @@ const SegmentedCircularProgress: React.FC<{
     // Progress path (filled portion)
     let progressPath = "";
     if (fillPercent > 0) {
-      const fillEnd = segmentStart - (segmentAngle * (100 - fillPercent)) / 100;
+      const fillEnd = segmentStart + (segmentAngle * fillPercent) / 100;
       progressPath = createArcPath(segmentStart, fillEnd);
     }
 
@@ -259,9 +260,7 @@ const SegmentedCircularProgress: React.FC<{
   }
 
   return (
-    <div
-      className={`relative ${className} rotate-180 translate-y-4/5 pointer-events-none`}
-    >
+    <div className={`relative ${className} pointer-events-none`}>
       <svg
         width={size}
         height={svgHeight}
